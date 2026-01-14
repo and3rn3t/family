@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { ChartBar, Calendar, Users, Trophy } from '@phosphor-icons/react'
-import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement } from '@/lib/types'
+import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
 import { 
   getStarsForChore, 
   getCurrentMonthKey, 
@@ -21,6 +21,7 @@ import { ManagementView } from '@/components/ManagementView'
 import { CompetitionView } from '@/components/CompetitionView'
 import { MemberDialog } from '@/components/MemberDialog'
 import { ChoreDialog } from '@/components/ChoreDialog'
+import { EventDialog } from '@/components/EventDialog'
 import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
@@ -28,6 +29,7 @@ import { AchievementUnlock } from '@/components/AchievementUnlock'
 function App() {
   const [members, setMembers] = useKV<FamilyMember[]>('family-members', [])
   const [chores, setChores] = useKV<Chore[]>('chores', [])
+  const [events, setEvents] = useKV<Event[]>('events', [])
   const [competitions, setCompetitions] = useKV<MonthlyCompetition[]>('monthly-competitions', [])
   const [weeklyCompetitions, setWeeklyCompetitions] = useKV<WeeklyCompetition[]>('weekly-competitions', [])
   const [lastMonthCheck, setLastMonthCheck] = useKV<string>('last-month-check', '')
@@ -35,15 +37,18 @@ function App() {
   
   const [memberDialogOpen, setMemberDialogOpen] = useState(false)
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
+  const [eventDialogOpen, setEventDialogOpen] = useState(false)
   const [achievementsDialogOpen, setAchievementsDialogOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<FamilyMember | undefined>()
   const [viewingMemberAchievements, setViewingMemberAchievements] = useState<FamilyMember | null>(null)
   const [editingChore, setEditingChore] = useState<Chore | undefined>()
+  const [editingEvent, setEditingEvent] = useState<Event | undefined>()
   const [showCelebration, setShowCelebration] = useState(false)
   const [unlockedAchievement, setUnlockedAchievement] = useState<Achievement | null>(null)
 
   const safeMembers = members || []
   const safeChores = chores || []
+  const safeEvents = events || []
   const safeCompetitions = competitions || []
   const safeWeeklyCompetitions = weeklyCompetitions || []
 
@@ -151,6 +156,36 @@ function App() {
     setEditingChore(undefined)
   }
 
+  const handleSaveEvent = (
+    eventData: Omit<Event, 'id' | 'createdAt'> & { id?: string }
+  ) => {
+    if (eventData.id) {
+      setEvents((current) =>
+        (current || []).map((e) =>
+          e.id === eventData.id
+            ? { ...e, ...eventData }
+            : e
+        )
+      )
+      toast.success('Event updated!')
+    } else {
+      const newEvent: Event = {
+        id: `event-${Date.now()}`,
+        title: eventData.title,
+        description: eventData.description,
+        category: eventData.category,
+        date: eventData.date,
+        time: eventData.time,
+        assignedTo: eventData.assignedTo,
+        allDay: eventData.allDay,
+        createdAt: Date.now(),
+      }
+      setEvents((current) => [...(current || []), newEvent])
+      toast.success('Event added!')
+    }
+    setEditingEvent(undefined)
+  }
+
   const handleCompleteChore = (choreId: string) => {
     const chore = safeChores.find((c) => c.id === choreId)
     if (!chore) return
@@ -219,6 +254,12 @@ function App() {
     toast.success(`${chore?.title} deleted`)
   }
 
+  const handleDeleteEvent = (eventId: string) => {
+    const event = safeEvents.find((e) => e.id === eventId)
+    setEvents((current) => (current || []).filter((e) => e.id !== eventId))
+    toast.success(`${event?.title} deleted`)
+  }
+
   const handleEditMember = (member: FamilyMember) => {
     setEditingMember(member)
     setMemberDialogOpen(true)
@@ -229,6 +270,11 @@ function App() {
     setChoreDialogOpen(true)
   }
 
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event)
+    setEventDialogOpen(true)
+  }
+
   const handleAddMember = () => {
     setEditingMember(undefined)
     setMemberDialogOpen(true)
@@ -237,6 +283,11 @@ function App() {
   const handleAddChore = () => {
     setEditingChore(undefined)
     setChoreDialogOpen(true)
+  }
+
+  const handleAddEvent = () => {
+    setEditingEvent(undefined)
+    setEventDialogOpen(true)
   }
 
   const handleViewAchievements = (member: FamilyMember) => {
@@ -299,7 +350,14 @@ function App() {
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-6">
-            <ScheduleView members={safeMembers} chores={safeChores} />
+            <ScheduleView 
+              members={safeMembers} 
+              chores={safeChores}
+              events={safeEvents}
+              onAddEvent={handleAddEvent}
+              onEditEvent={handleEditEvent}
+              onDeleteEvent={handleDeleteEvent}
+            />
           </TabsContent>
 
           <TabsContent value="manage" className="space-y-6">
@@ -333,6 +391,17 @@ function App() {
           if (!open) setEditingChore(undefined)
         }}
         onSave={handleSaveChore}
+      />
+
+      <EventDialog
+        event={editingEvent}
+        members={safeMembers}
+        open={eventDialogOpen}
+        onOpenChange={(open) => {
+          setEventDialogOpen(open)
+          if (!open) setEditingEvent(undefined)
+        }}
+        onSave={handleSaveEvent}
       />
 
       <MemberAchievementsDialog

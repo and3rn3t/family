@@ -1,16 +1,22 @@
-import { FamilyMember, Chore } from '@/lib/types'
+import { FamilyMember, Chore, Event } from '@/lib/types'
 import { MemberAvatar } from './MemberAvatar'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { getNextDueDate, isChoreComplete, isChoreOverdue } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
+import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot } from '@phosphor-icons/react'
 
 interface ScheduleViewProps {
   members: FamilyMember[]
   chores: Chore[]
+  events: Event[]
+  onAddEvent: () => void
+  onEditEvent: (event: Event) => void
+  onDeleteEvent: (eventId: string) => void
 }
 
-export function ScheduleView({ members, chores }: ScheduleViewProps) {
+export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent, onDeleteEvent }: ScheduleViewProps) {
   const today = new Date()
   const startOfWeek = new Date(today)
   startOfWeek.setDate(today.getDate() - today.getDay())
@@ -28,11 +34,48 @@ export function ScheduleView({ members, chores }: ScheduleViewProps) {
     })
   }
 
+  const getEventsForDay = (date: Date) => {
+    return events.filter((event) => {
+      const eventDate = new Date(event.date)
+      return eventDate.toDateString() === date.toDateString()
+    })
+  }
+
   const isToday = (date: Date) => {
     return date.toDateString() === today.toDateString()
   }
 
-  if (members.length === 0 || chores.length === 0) {
+  const getCategoryIcon = (category: Event['category']) => {
+    switch (category) {
+      case 'sports':
+        return <SoccerBall className="h-3 w-3" />
+      case 'school':
+        return <GraduationCap className="h-3 w-3" />
+      case 'medical':
+        return <FirstAid className="h-3 w-3" />
+      case 'social':
+        return <UsersIcon className="h-3 w-3" />
+      default:
+        return <CalendarDot className="h-3 w-3" />
+    }
+  }
+
+  const getCategoryColor = (category: Event['category']) => {
+    switch (category) {
+      case 'sports':
+        return 'border-[oklch(0.68_0.18_145)] bg-[oklch(0.68_0.18_145)]/10'
+      case 'school':
+        return 'border-primary bg-primary/10'
+      case 'medical':
+        return 'border-destructive bg-destructive/10'
+      case 'social':
+        return 'border-secondary bg-secondary/10'
+      default:
+        return 'border-muted-foreground bg-muted'
+    }
+  }
+
+  if (members.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
@@ -47,18 +90,26 @@ export function ScheduleView({ members, chores }: ScheduleViewProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="font-heading text-3xl font-bold tracking-tight">Weekly Schedule</h2>
-        <p className="text-muted-foreground mt-1">
-          View upcoming chores for the week
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-heading text-3xl font-bold tracking-tight">Weekly Schedule</h2>
+          <p className="text-muted-foreground mt-1">
+            Chores, events, and activities for the week
+          </p>
+        </div>
+        <Button onClick={onAddEvent} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add Event
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
         {days.map((date, index) => {
           const dayChores = getChoresForDay(date)
+          const dayEvents = getEventsForDay(date)
           const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
           const dayNumber = date.getDate()
+          const hasItems = dayChores.length > 0 || dayEvents.length > 0
 
           return (
             <Card
@@ -85,46 +136,86 @@ export function ScheduleView({ members, chores }: ScheduleViewProps) {
                 </div>
 
                 <div className="space-y-2">
-                  {dayChores.length === 0 ? (
+                  {!hasItems && (
                     <p className="text-xs text-center text-muted-foreground">
-                      No chores
+                      Nothing scheduled
                     </p>
-                  ) : (
-                    dayChores.map((chore) => {
-                      const member = members.find((m) => m.id === chore.assignedTo)
-                      const complete = isChoreComplete(chore)
-                      const overdue = isChoreOverdue(chore)
-
-                      return (
-                        <div
-                          key={chore.id}
-                          className={cn(
-                            'p-2 rounded-lg border space-y-2',
-                            complete && 'bg-[oklch(0.95_0.05_290)] border-[oklch(0.75_0.09_290)]',
-                            overdue && !complete && 'border-accent bg-accent/10'
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-1">
-                            <p className={cn(
-                              'text-xs font-medium flex-1',
-                              complete && 'line-through text-muted-foreground'
-                            )}>
-                              {chore.title}
-                            </p>
-                          </div>
-                          {member && (
-                            <div className="flex justify-center">
-                              <MemberAvatar
-                                name={member.name}
-                                color={member.color}
-                                size="sm"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })
                   )}
+                  
+                  {dayEvents.map((event) => {
+                    const member = event.assignedTo 
+                      ? members.find((m) => m.id === event.assignedTo)
+                      : undefined
+
+                    return (
+                      <div
+                        key={event.id}
+                        className={cn(
+                          'p-2 rounded-lg border space-y-2 cursor-pointer hover:shadow-sm transition-shadow',
+                          getCategoryColor(event.category)
+                        )}
+                        onClick={() => onEditEvent(event)}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="mt-0.5">
+                            {getCategoryIcon(event.category)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium truncate">{event.title}</p>
+                            {event.time && !event.allDay && (
+                              <p className="text-xs text-muted-foreground">
+                                {event.time}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {member && (
+                          <div className="flex justify-center">
+                            <MemberAvatar
+                              name={member.name}
+                              color={member.color}
+                              size="sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                  
+                  {dayChores.map((chore) => {
+                    const member = members.find((m) => m.id === chore.assignedTo)
+                    const complete = isChoreComplete(chore)
+                    const overdue = isChoreOverdue(chore)
+
+                    return (
+                      <div
+                        key={chore.id}
+                        className={cn(
+                          'p-2 rounded-lg border space-y-2',
+                          complete && 'bg-[oklch(0.95_0.05_290)] border-[oklch(0.75_0.09_290)]',
+                          overdue && !complete && 'border-accent bg-accent/10'
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <p className={cn(
+                            'text-xs font-medium flex-1',
+                            complete && 'line-through text-muted-foreground'
+                          )}>
+                            {chore.title}
+                          </p>
+                        </div>
+                        {member && (
+                          <div className="flex justify-center">
+                            <MemberAvatar
+                              name={member.name}
+                              color={member.color}
+                              size="sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </Card>

@@ -55,11 +55,18 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Achievements unlock correctly, animations display properly, achievement progress persists, and members can view their earned achievements
 
 ### Schedule/Calendar View
-- **Functionality**: Display weekly schedule showing which chores are due for each family member
-- **Purpose**: Provide temporal context and help with planning
+- **Functionality**: Display weekly schedule showing which chores are due for each family member, plus non-chore events like sports practices, school events, medical appointments, and social activities
+- **Purpose**: Provide temporal context, help with planning, and keep the entire family informed of all scheduled activities
 - **Trigger**: Navigate to schedule view tab
-- **Progression**: Open schedule → View current week → See chores organized by day and person → Identify upcoming tasks
-- **Success criteria**: Schedule accurately reflects chore frequencies, updates in real-time, and shows current day prominently
+- **Progression**: Open schedule → View current week → See chores and events organized by day → Identify upcoming tasks and activities → Click event to edit
+- **Success criteria**: Schedule accurately reflects chore frequencies and events, updates in real-time, shows current day prominently, and displays event categories with visual distinction
+
+### Event Management
+- **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, and optional family member assignment
+- **Purpose**: Track family activities beyond chores to maintain a complete family schedule in one place
+- **Trigger**: Click "Add Event" button in schedule view or edit existing events
+- **Progression**: Click add → Enter event details → Select category → Choose date and time → Optionally assign to member → Save → Event appears in schedule
+- **Success criteria**: Events persist across sessions, display correctly in schedule view with category-based styling, can be edited and deleted, and integrate seamlessly with chores
 
 ### Progress Dashboard
 - **Functionality**: Show completion statistics per family member, overall household progress, star leaderboard, and current monthly competition standings
@@ -145,18 +152,20 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Achievement Unlock Animation**: Full-screen celebration overlay with rarity-based colors, particle effects, and auto-dismiss
   - **Monthly Competition Card**: Large featured card showing current month standings, countdown, and live rankings
   - **Past Competition Cards**: Compact cards showing historical winners and final standings
-  - **Weekly Schedule Grid**: Custom calendar-style layout showing chores organized by day and person
+  - **Weekly Schedule Grid**: Custom calendar-style layout showing chores and events organized by day
+  - **Event Cards**: Custom component with category icon, title, time, optional assigned member, and category-based color coding
   - **Celebration Component**: Custom animation overlay for completed chores using framer-motion
 
 - **States**:
   - **Buttons**: Resting (solid primary), Hover (slightly darker with subtle lift), Active (pressed down), Disabled (muted with reduced opacity)
   - **Chore Cards**: Pending (normal), Hover (elevated shadow), Overdue (yellow accent border), Complete (muted with checkmark and lavender tint)
+  - **Event Cards**: Category-based styling (sports=green, school=blue, medical=red, social=coral, other=muted), hover (shadow), clickable for editing
   - **Achievement Cards**: Locked (grayscale, muted), Unlocked (full color with rarity-based accent)
   - **Competition Rankings**: Active month (highlighted border and background), Past competitions (standard card style)
   - **Input Fields**: Empty (subtle border), Focus (primary color border with glow), Filled (darker border), Error (destructive color border)
 
 - **Icon Selection**:
-  - **Plus** - Add new chore/member
+  - **Plus** - Add new chore/member/event
   - **Check** - Mark complete
   - **Calendar/CalendarBlank** - Schedule view, monthly tracking
   - **ChartBar** - Dashboard/stats
@@ -173,6 +182,11 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Rocket** - Overachiever achievements
   - **TrendUp** - Progress, comeback achievements
   - **CheckCircle** - Completion achievements
+  - **SoccerBall** - Sports events
+  - **GraduationCap** - School events
+  - **FirstAid** - Medical appointments
+  - **Users** - Social events
+  - **CalendarDot** - General events
 
 - **Spacing**:
   - Container padding: `p-6` (24px) on mobile, `p-8` (32px) on tablet+

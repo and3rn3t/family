@@ -54,6 +54,20 @@ export interface Achievement {
   rarity: 'common' | 'rare' | 'epic' | 'legendary'
 }
 
+export type EventCategory = 'sports' | 'school' | 'medical' | 'social' | 'other'
+
+export interface Event {
+  id: string
+  title: string
+  description: string
+  category: EventCategory
+  date: number
+  time?: string
+  assignedTo?: string
+  allDay: boolean
+  createdAt: number
+}
+
 export const AVATAR_COLORS = [
   'oklch(0.65 0.15 200)',
   'oklch(0.72 0.14 25)',
