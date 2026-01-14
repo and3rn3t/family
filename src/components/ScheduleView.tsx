@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getNextDueDate, isChoreComplete, isChoreOverdue } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
-import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel } from '@phosphor-icons/react'
+import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel, CaretLeft, CaretRight } from '@phosphor-icons/react'
 
 interface ScheduleViewProps {
   members: FamilyMember[]
@@ -20,16 +20,40 @@ interface ScheduleViewProps {
 
 export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent, onDeleteEvent }: ScheduleViewProps) {
   const [selectedMemberId, setSelectedMemberId] = useState<string>('all')
+  const [weekOffset, setWeekOffset] = useState(0)
 
   const today = new Date()
   const startOfWeek = new Date(today)
-  startOfWeek.setDate(today.getDate() - today.getDay())
+  startOfWeek.setDate(today.getDate() - today.getDay() + (weekOffset * 7))
   
   const days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(startOfWeek)
     date.setDate(startOfWeek.getDate() + i)
     return date
   })
+
+  const endOfWeek = new Date(days[days.length - 1])
+
+  const goToPreviousWeek = () => setWeekOffset((prev) => prev - 1)
+  const goToNextWeek = () => setWeekOffset((prev) => prev + 1)
+  const goToCurrentWeek = () => setWeekOffset(0)
+
+  const formatDateRange = () => {
+    const start = days[0]
+    const end = days[days.length - 1]
+    
+    const startMonth = start.toLocaleDateString('en-US', { month: 'short' })
+    const endMonth = end.toLocaleDateString('en-US', { month: 'short' })
+    const startDay = start.getDate()
+    const endDay = end.getDate()
+    const year = end.getFullYear()
+    
+    if (startMonth === endMonth) {
+      return `${startMonth} ${startDay} - ${endDay}, ${year}`
+    } else {
+      return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`
+    }
+  }
 
   const getChoresForDay = (date: Date) => {
     return chores.filter((chore) => {
@@ -50,7 +74,8 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
   }
 
   const isToday = (date: Date) => {
-    return date.toDateString() === today.toDateString()
+    const actualToday = new Date()
+    return date.toDateString() === actualToday.toDateString()
   }
 
   const getCategoryIcon = (category: Event['category']) => {
@@ -134,6 +159,44 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
           </Button>
         </div>
       </div>
+
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToPreviousWeek}
+              className="h-9 w-9"
+            >
+              <CaretLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-center min-w-[220px]">
+              <div className="font-heading font-semibold text-lg">
+                {formatDateRange()}
+              </div>
+              {weekOffset !== 0 && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={goToCurrentWeek}
+                  className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
+                >
+                  Return to current week
+                </Button>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToNextWeek}
+              className="h-9 w-9"
+            >
+              <CaretRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {members.length > 0 && (
         <Card className="p-4">
