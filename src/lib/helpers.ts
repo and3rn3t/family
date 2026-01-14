@@ -263,3 +263,113 @@ export const getExpandedEvents = (events: Event[], monthsAhead: number = 3): Eve
 
   return expandedEvents.sort((a, b) => a.date - b.date)
 }
+
+// ============================================
+// Streak Functions
+// ============================================
+
+export const getTodayDateKey = (): string => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
+export const getYesterdayDateKey = (): string => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
+}
+
+export const calculateNewStreak = (member: FamilyMember): { currentStreak: number; bestStreak: number } => {
+  const today = getTodayDateKey()
+  const yesterday = getYesterdayDateKey()
+  const lastCompletionDate = member.lastCompletionDate
+
+  let currentStreak = member.currentStreak || 0
+  let bestStreak = member.bestStreak || 0
+
+  if (lastCompletionDate === today) {
+    // Already completed today, no change to streak
+    return { currentStreak, bestStreak }
+  } else if (lastCompletionDate === yesterday) {
+    // Consecutive day - increment streak
+    currentStreak += 1
+  } else {
+    // Streak broken - reset to 1
+    currentStreak = 1
+  }
+
+  // Update best streak if current is higher
+  if (currentStreak > bestStreak) {
+    bestStreak = currentStreak
+  }
+
+  return { currentStreak, bestStreak }
+}
+
+export const getStreakBonus = (streak: number): number => {
+  // Bonus stars based on streak length
+  if (streak >= 30) return 5 // 30+ day streak
+  if (streak >= 14) return 3 // 2 week streak
+  if (streak >= 7) return 2  // 1 week streak
+  if (streak >= 3) return 1  // 3 day streak
+  return 0 // No bonus for less than 3 days
+}
+
+export const getStreakLabel = (streak: number): string => {
+  if (streak >= 30) return '🔥 Legendary'
+  if (streak >= 14) return '🌟 Amazing'
+  if (streak >= 7) return '⚡ Great'
+  if (streak >= 3) return '✨ Nice'
+  return ''
+}
+
+// ============================================
+// Chore Rotation Functions
+// ============================================
+
+export const shouldRotateChore = (chore: Chore): boolean => {
+  if (!chore.rotation || chore.rotation === 'none') return false
+  if (!chore.rotationMembers || chore.rotationMembers.length < 2) return false
+  
+  const lastRotated = chore.lastRotated || chore.createdAt
+  const now = Date.now()
+  const daysSinceRotation = (now - lastRotated) / (1000 * 60 * 60 * 24)
+  
+  if (chore.rotation === 'weekly') {
+    return daysSinceRotation >= 7
+  } else if (chore.rotation === 'monthly') {
+    return daysSinceRotation >= 30
+  }
+  
+  return false
+}
+
+export const getNextRotationMember = (chore: Chore): string | null => {
+  if (!chore.rotationMembers || chore.rotationMembers.length < 2) return null
+  
+  const currentIndex = chore.rotationMembers.indexOf(chore.assignedTo)
+  if (currentIndex === -1) return chore.rotationMembers[0]
+  
+  const nextIndex = (currentIndex + 1) % chore.rotationMembers.length
+  return chore.rotationMembers[nextIndex]
+}
+
+export const rotateChore = (chore: Chore): Chore => {
+  const nextMember = getNextRotationMember(chore)
+  if (!nextMember) return chore
+  
+  return {
+    ...chore,
+    assignedTo: nextMember,
+    lastRotated: Date.now(),
+  }
+}
+
+export const getRotationLabel = (rotation: string): string => {
+  const labels: Record<string, string> = {
+    none: 'No rotation',
+    weekly: 'Weekly rotation',
+    monthly: 'Monthly rotation',
+  }
+  return labels[rotation] || rotation
+}

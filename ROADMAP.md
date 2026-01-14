@@ -30,14 +30,14 @@ Transform daily household management from a chore into a collaborative family ga
 
 ### 1.1 User Experience Improvements
 - [x] **Dark mode toggle** - Easy on the eyes for evening use ✅
-- [ ] **Theme selector** - Let each family pick their vibe (Cozy, Vibrant, Minimal, Seasonal)
+- [x] **Theme selector** - Let each family pick their vibe (6 color themes) ✅
 - [x] **Sound effects toggle** - Optional celebration sounds and button clicks ✅
 - [x] **Undo chore completion** - Accidents happen, 30-second undo window ✅
 - [ ] **Quick actions** - Swipe to complete on mobile
 
 ### 1.2 Chore Enhancements
 - [x] **Chore templates** - Pre-built common household chores to quick-add ✅
-- [ ] **Chore rotation** - Auto-rotate assignments weekly/monthly
+- [x] **Chore rotation** - Auto-rotate assignments weekly/monthly ✅
 - [ ] **Bulk chore creation** - Add multiple chores at once
 - [ ] **Chore difficulty rating** - Easy/Medium/Hard with star multipliers
 - [ ] **Due time for chores** - "Before breakfast" or specific times
@@ -72,7 +72,7 @@ Transform daily household management from a chore into a collaborative family ga
 - [ ] Small toy/treat budget
 
 ### 2.3 Bonus Stars
-- [ ] **Streak bonuses** - Extra stars for consecutive days
+- [x] **Streak bonuses** - Extra stars for consecutive days ✅
 - [ ] **Early bird bonus** - Complete before noon
 - [ ] **Helper bonus** - Help someone else with their chore
 - [ ] **Weekend warrior** - Extra for weekend completions
@@ -296,8 +296,8 @@ Transform daily household management from a chore into a collaborative family ga
 1. Reward store basic
 2. Shopping list
 3. Morning/bedtime routines
-4. Theme selector
-5. Chore rotation
+4. ~~Theme selector~~ ✅
+5. ~~Chore rotation~~ ✅
 
 ### Larger Features (1-2 weeks each)
 1. Full allowance system

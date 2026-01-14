@@ -23,10 +23,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { Chore, ChoreFrequency, FamilyMember } from '@/lib/types'
-import { getFrequencyLabel, getStarsForChore } from '@/lib/helpers'
+import { Chore, ChoreFrequency, FamilyMember, RotationFrequency } from '@/lib/types'
+import { getFrequencyLabel, getStarsForChore, getRotationLabel } from '@/lib/helpers'
 import { CHORE_TEMPLATES, TEMPLATE_CATEGORIES, ChoreTemplate } from '@/lib/chore-templates'
-import { Star, CaretDown, Lightning } from '@phosphor-icons/react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Star, CaretDown, Lightning, ArrowsClockwise } from '@phosphor-icons/react'
 
 interface ChoreDialogProps {
   chore?: Chore
@@ -37,6 +38,7 @@ interface ChoreDialogProps {
 }
 
 const FREQUENCIES: ChoreFrequency[] = ['daily', 'weekly', 'biweekly', 'monthly']
+const ROTATION_OPTIONS: RotationFrequency[] = ['none', 'weekly', 'monthly']
 
 export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: ChoreDialogProps) {
   const [title, setTitle] = useState(chore?.title || '')
@@ -45,6 +47,8 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
   const [assignedTo, setAssignedTo] = useState(chore?.assignedTo || (members[0]?.id || ''))
   const [showTemplates, setShowTemplates] = useState(false)
   const [templateCategory, setTemplateCategory] = useState('all')
+  const [rotation, setRotation] = useState<RotationFrequency>(chore?.rotation || 'none')
+  const [rotationMembers, setRotationMembers] = useState<string[]>(chore?.rotationMembers || [])
 
   // Reset form when dialog opens/closes or chore changes
   useEffect(() => {
@@ -54,8 +58,18 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       setFrequency(chore?.frequency || 'weekly')
       setAssignedTo(chore?.assignedTo || (members[0]?.id || ''))
       setShowTemplates(false)
+      setRotation(chore?.rotation || 'none')
+      setRotationMembers(chore?.rotationMembers || [])
     }
   }, [open, chore, members])
+
+  const toggleRotationMember = (memberId: string) => {
+    setRotationMembers((current) =>
+      current.includes(memberId)
+        ? current.filter((id) => id !== memberId)
+        : [...current, memberId]
+    )
+  }
 
   const filteredTemplates = templateCategory === 'all' 
     ? CHORE_TEMPLATES 
@@ -78,6 +92,9 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       frequency,
       assignedTo,
       lastCompleted: chore?.lastCompleted,
+      rotation: rotation !== 'none' ? rotation : undefined,
+      rotationMembers: rotation !== 'none' && rotationMembers.length > 1 ? rotationMembers : undefined,
+      lastRotated: chore?.lastRotated,
     })
     
     onOpenChange(false)
@@ -199,6 +216,69 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               </SelectContent>
             </Select>
           </div>
+
+          {/* Rotation Settings */}
+          {members.length > 1 && (
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full justify-between" type="button">
+                  <div className="flex items-center gap-2">
+                    <ArrowsClockwise className="h-4 w-4 text-muted-foreground" />
+                    <span>Rotation Settings</span>
+                  </div>
+                  <CaretDown className="h-4 w-4" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3 space-y-3">
+                <div className="space-y-2">
+                  <Label>Rotation Frequency</Label>
+                  <Select value={rotation} onValueChange={(v) => setRotation(v as RotationFrequency)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROTATION_OPTIONS.map((opt) => (
+                        <SelectItem key={opt} value={opt}>
+                          {getRotationLabel(opt)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {rotation !== 'none' && (
+                  <div className="space-y-2">
+                    <Label>Rotate Between</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Select 2 or more members to rotate this chore between
+                    </p>
+                    <div className="space-y-2">
+                      {members.map((member) => (
+                        <div key={member.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`rotate-${member.id}`}
+                            checked={rotationMembers.includes(member.id)}
+                            onCheckedChange={() => toggleRotationMember(member.id)}
+                          />
+                          <label
+                            htmlFor={`rotate-${member.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {member.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    {rotationMembers.length < 2 && rotation !== 'none' && (
+                      <p className="text-xs text-amber-600">
+                        Select at least 2 members for rotation
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </div>
         
         <DialogFooter>

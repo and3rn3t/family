@@ -8,9 +8,13 @@ export interface FamilyMember {
   achievements?: string[]
   monthlyStars?: Record<string, number>
   weeklyStars?: Record<string, number>
+  currentStreak?: number
+  bestStreak?: number
+  lastCompletionDate?: string // YYYY-MM-DD format for streak tracking
 }
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
+export type RotationFrequency = 'none' | 'weekly' | 'monthly'
 
 export interface Chore {
   id: string
@@ -20,6 +24,10 @@ export interface Chore {
   assignedTo: string
   createdAt: number
   lastCompleted?: number
+  // Rotation settings
+  rotation?: RotationFrequency
+  rotationMembers?: string[] // Member IDs to rotate between
+  lastRotated?: number // Timestamp of last rotation
 }
 
 export interface ChoreCompletion {

@@ -137,6 +137,39 @@ export const ACHIEVEMENTS: Achievement[] = [
       return Object.values(member.monthlyStars).some((stars) => stars >= 50)
     },
   },
+  // Streak achievements
+  {
+    id: 'streak-starter',
+    title: 'Streak Starter',
+    description: 'Complete chores 3 days in a row',
+    icon: 'Fire',
+    rarity: 'common',
+    condition: (member) => (member.currentStreak || 0) >= 3 || (member.bestStreak || 0) >= 3,
+  },
+  {
+    id: 'week-warrior',
+    title: 'Week Warrior',
+    description: 'Maintain a 7-day streak',
+    icon: 'Fire',
+    rarity: 'rare',
+    condition: (member) => (member.currentStreak || 0) >= 7 || (member.bestStreak || 0) >= 7,
+  },
+  {
+    id: 'fortnight-fighter',
+    title: 'Fortnight Fighter',
+    description: 'Maintain a 14-day streak',
+    icon: 'Fire',
+    rarity: 'epic',
+    condition: (member) => (member.currentStreak || 0) >= 14 || (member.bestStreak || 0) >= 14,
+  },
+  {
+    id: 'streak-legend',
+    title: 'Streak Legend',
+    description: 'Maintain a 30-day streak',
+    icon: 'Fire',
+    rarity: 'legendary',
+    condition: (member) => (member.currentStreak || 0) >= 30 || (member.bestStreak || 0) >= 30,
+  },
 ]
 
 export const checkNewAchievements = (

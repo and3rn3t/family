@@ -3,11 +3,13 @@ import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise } from '@phosphor-icons/react'
+import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise, Fire } from '@phosphor-icons/react'
 import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SoundToggle } from '@/components/SoundToggle'
+import { ThemeSelector } from '@/components/ThemeSelector'
 import { playCelebrationSound, playAchievementSound, playUndoSound } from '@/lib/sounds'
+import { applyTheme } from '@/lib/themes'
 import { 
   getStarsForChore, 
   getCurrentMonthKey, 
@@ -16,7 +18,12 @@ import {
   getMemberWeeklyStars,
   finalizeMonthlyCompetition,
   finalizeWeeklyCompetition,
-  getExpandedEvents 
+  getExpandedEvents,
+  calculateNewStreak,
+  getStreakBonus,
+  getTodayDateKey,
+  shouldRotateChore,
+  rotateChore,
 } from '@/lib/helpers'
 import { checkNewAchievements } from '@/lib/achievements'
 import { DashboardView } from '@/components/DashboardView'
@@ -40,6 +47,7 @@ function App() {
   const [lastWeekCheck, setLastWeekCheck] = useKV<string>('last-week-check', '')
   const [isDarkMode, setIsDarkMode] = useKV<boolean>('dark-mode', false)
   const [soundEnabled, setSoundEnabled] = useKV<boolean>('sound-enabled', true)
+  const [colorTheme, setColorTheme] = useKV<string>('color-theme', 'default')
   
   // Store for undo functionality
   const undoDataRef = useRef<{
@@ -78,12 +86,41 @@ function App() {
     }
   }, [isDarkMode])
 
+  // Apply color theme
+  useEffect(() => {
+    applyTheme(colorTheme || 'default', isDarkMode || false)
+  }, [colorTheme, isDarkMode])
+
+  // Check for chore rotations on load
+  useEffect(() => {
+    const choresToRotate = safeChores.filter(shouldRotateChore)
+    if (choresToRotate.length > 0) {
+      setChores((current) =>
+        (current || []).map((chore) => {
+          if (shouldRotateChore(chore)) {
+            const rotatedChore = rotateChore(chore)
+            const newMember = safeMembers.find((m) => m.id === rotatedChore.assignedTo)
+            if (newMember) {
+              toast.info(`🔄 ${chore.title} rotated to ${newMember.name}`)
+            }
+            return rotatedChore
+          }
+          return chore
+        })
+      )
+    }
+  }, []) // Run once on mount
+
   const handleToggleTheme = () => {
     setIsDarkMode((current) => !current)
   }
 
   const handleToggleSound = () => {
     setSoundEnabled((current) => !current)
+  }
+
+  const handleChangeTheme = (themeId: string) => {
+    setColorTheme(themeId)
   }
 
   useEffect(() => {
@@ -293,15 +330,21 @@ function App() {
     const member = safeMembers.find((m) => m.id === chore.assignedTo)
     if (!member) return
 
-    const starsEarned = getStarsForChore(chore.frequency)
+    const baseStars = getStarsForChore(chore.frequency)
     const currentMonthKey = getCurrentMonthKey()
     const currentWeekKey = getCurrentWeekKey()
+    const todayKey = getTodayDateKey()
+    
+    // Calculate streak
+    const { currentStreak, bestStreak } = calculateNewStreak(member)
+    const streakBonus = getStreakBonus(currentStreak)
+    const totalStarsEarned = baseStars + streakBonus
     
     // Store undo data before making changes
     undoDataRef.current = {
       chore: { ...chore },
       member: { ...member },
-      starsEarned,
+      starsEarned: totalStarsEarned,
       monthKey: currentMonthKey,
       weekKey: currentWeekKey,
     }
@@ -317,10 +360,10 @@ function App() {
     setMembers((current) =>
       (current || []).map((m) => {
         if (m.id === chore.assignedTo) {
-          const newTotalStars = (m.stars || 0) + starsEarned
-          const currentMonthStars = getMemberMonthlyStars(m, currentMonthKey) + starsEarned
-          const currentWeekStars = getMemberWeeklyStars(m, currentWeekKey) + starsEarned
-          const updatedMember = {
+          const newTotalStars = (m.stars || 0) + totalStarsEarned
+          const currentMonthStars = getMemberMonthlyStars(m, currentMonthKey) + totalStarsEarned
+          const currentWeekStars = getMemberWeeklyStars(m, currentWeekKey) + totalStarsEarned
+          const updatedMember: FamilyMember = {
             ...m,
             stars: newTotalStars,
             monthlyStars: {
@@ -331,6 +374,9 @@ function App() {
               ...(m.weeklyStars || {}),
               [currentWeekKey]: currentWeekStars,
             },
+            currentStreak,
+            bestStreak,
+            lastCompletionDate: todayKey,
           }
 
           const newAchievements = checkNewAchievements(updatedMember, safeChores, safeCompetitions)
@@ -364,9 +410,17 @@ function App() {
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 1000)
     
+    // Build toast message with streak info
+    let description = 'Great job! Keep up the amazing work!'
+    if (streakBonus > 0) {
+      description = `🔥 ${currentStreak}-day streak! +${streakBonus} bonus stars!`
+    } else if (currentStreak > 1) {
+      description = `🔥 ${currentStreak}-day streak! Keep it going!`
+    }
+    
     // Show toast with undo action
-    toast.success(`Chore completed! +${starsEarned} ⭐`, {
-      description: `Great job! Keep up the amazing work!`,
+    toast.success(`Chore completed! +${totalStarsEarned} ⭐`, {
+      description,
       duration: 10000, // 10 second window for undo
       action: {
         label: (
@@ -464,7 +518,8 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <SoundToggle enabled={soundEnabled || true} onToggle={handleToggleSound} />
+            <SoundToggle enabled={soundEnabled ?? true} onToggle={handleToggleSound} />
+            <ThemeSelector currentTheme={colorTheme || 'default'} onSelectTheme={handleChangeTheme} />
             <ThemeToggle isDark={isDarkMode || false} onToggle={handleToggleTheme} />
           </div>
         </header>

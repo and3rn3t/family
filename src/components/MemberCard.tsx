@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { MemberAvatar } from './MemberAvatar'
 import { AchievementsDisplay } from './AchievementsDisplay'
 import { FamilyMember, Chore } from '@/lib/types'
-import { isChoreComplete, getCurrentMonthKey, getMemberMonthlyStars } from '@/lib/helpers'
-import { PencilSimple, Trash, Star, CalendarBlank } from '@phosphor-icons/react'
+import { isChoreComplete, getCurrentMonthKey, getMemberMonthlyStars, getStreakLabel } from '@/lib/helpers'
+import { PencilSimple, Trash, Star, CalendarBlank, Fire } from '@phosphor-icons/react'
 
 interface MemberCardProps {
   member: FamilyMember
@@ -67,6 +67,18 @@ export function MemberCard({ member, chores, onEdit, onDelete, onViewAchievement
           <span className="font-heading text-lg font-semibold">{monthlyStars}</span>
           <span className="text-xs text-muted-foreground ml-2">this month</span>
         </div>
+
+        {/* Streak Display */}
+        {(member.currentStreak ?? 0) > 0 && (
+          <div className="flex items-center justify-center py-2 px-4 bg-orange-500/10 rounded-lg">
+            <Fire weight="fill" className="h-5 w-5 text-orange-500 mr-2" />
+            <span className="font-heading text-lg font-semibold">{member.currentStreak}</span>
+            <span className="text-xs text-muted-foreground ml-2">day streak</span>
+            {getStreakLabel(member.currentStreak || 0) && (
+              <span className="text-xs ml-2">{getStreakLabel(member.currentStreak || 0)}</span>
+            )}
+          </div>
+        )}
       </div>
       
       <div className="space-y-3">
