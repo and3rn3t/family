@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getNextDueDate, isChoreComplete, isChoreOverdue } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
-import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel, CaretLeft, CaretRight, Printer, DownloadSimple } from '@phosphor-icons/react'
+import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel, CaretLeft, CaretRight, Printer, DownloadSimple, Trash, PencilSimple } from '@phosphor-icons/react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 
@@ -400,19 +400,19 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                     const member = event.assignedTo 
                       ? members.find((m) => m.id === event.assignedTo)
                       : undefined
+                    const isRecurringInstance = !!event.parentEventId
 
                     return (
                       <div
                         key={event.id}
                         className={cn(
-                          'p-2 rounded-lg border-2 space-y-2 cursor-pointer hover:shadow-sm transition-shadow',
+                          'p-2 rounded-lg border-2 space-y-2 hover:shadow-sm transition-shadow group relative',
                           getCategoryColor(event.category)
                         )}
                         style={member ? {
                           borderLeftColor: member.color,
                           borderLeftWidth: '4px',
                         } : undefined}
-                        onClick={() => onEditEvent(event)}
                       >
                         <div className="flex items-start gap-2">
                           <div className="mt-0.5">
@@ -426,12 +426,40 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                               </p>
                             )}
                           </div>
+                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 hover:bg-background/50"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEditEvent(event)
+                              }}
+                            >
+                              <PencilSimple className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 text-destructive hover:bg-background/50 hover:text-destructive disabled:opacity-50"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onDeleteEvent(event.id)
+                              }}
+                              disabled={isRecurringInstance}
+                              title={isRecurringInstance ? 'Cannot delete recurring instance' : 'Delete event'}
+                            >
+                              <Trash className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                         {member && (
                           <div className="flex justify-center">
                             <MemberAvatar
                               name={member.name}
                               color={member.color}
+                              avatarUrl={member.avatarUrl}
+                              avatarIcon={member.avatarIcon}
                               size="sm"
                             />
                           </div>
