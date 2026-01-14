@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FamilyMember, Chore, Event } from '@/lib/types'
 import { MemberAvatar } from './MemberAvatar'
+import { EventCountdown } from './EventCountdown'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -398,7 +399,7 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                                     {event.description}
                                   </p>
                                 )}
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-2 mt-2 flex-wrap">
                                   {event.allDay ? (
                                     <Badge variant="outline" className="text-xs">All Day</Badge>
                                   ) : event.time && (
@@ -410,6 +411,9 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                                     <Badge variant="secondary" className="text-xs">
                                       Completed
                                     </Badge>
+                                  )}
+                                  {!isPast && event.time && (
+                                    <EventCountdown eventTime={event.time} allDay={event.allDay} />
                                   )}
                                 </div>
                               </div>
