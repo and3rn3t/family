@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { ChartBar, Calendar, Users, Trophy } from '@phosphor-icons/react'
+import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { SoundToggle } from '@/components/SoundToggle'
+import { playCelebrationSound, playAchievementSound, playUndoSound } from '@/lib/sounds'
 import { 
   getStarsForChore, 
   getCurrentMonthKey, 
@@ -37,6 +39,16 @@ function App() {
   const [lastMonthCheck, setLastMonthCheck] = useKV<string>('last-month-check', '')
   const [lastWeekCheck, setLastWeekCheck] = useKV<string>('last-week-check', '')
   const [isDarkMode, setIsDarkMode] = useKV<boolean>('dark-mode', false)
+  const [soundEnabled, setSoundEnabled] = useKV<boolean>('sound-enabled', true)
+  
+  // Store for undo functionality
+  const undoDataRef = useRef<{
+    chore: Chore
+    member: FamilyMember
+    starsEarned: number
+    monthKey: string
+    weekKey: string
+  } | null>(null)
   
   const [memberDialogOpen, setMemberDialogOpen] = useState(false)
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
@@ -68,6 +80,10 @@ function App() {
 
   const handleToggleTheme = () => {
     setIsDarkMode((current) => !current)
+  }
+
+  const handleToggleSound = () => {
+    setSoundEnabled((current) => !current)
   }
 
   useEffect(() => {
@@ -231,13 +247,64 @@ function App() {
     setEditingEvent(undefined)
   }
 
+  const handleUndoCompletion = () => {
+    const undoData = undoDataRef.current
+    if (!undoData) return
+
+    // Restore chore to previous state
+    setChores((current) =>
+      (current || []).map((c) =>
+        c.id === undoData.chore.id
+          ? { ...c, lastCompleted: undoData.chore.lastCompleted }
+          : c
+      )
+    )
+
+    // Restore member stars
+    setMembers((current) =>
+      (current || []).map((m) => {
+        if (m.id === undoData.member.id) {
+          return {
+            ...m,
+            stars: undoData.member.stars,
+            monthlyStars: undoData.member.monthlyStars,
+            weeklyStars: undoData.member.weeklyStars,
+          }
+        }
+        return m
+      })
+    )
+
+    undoDataRef.current = null
+    
+    if (soundEnabled) {
+      playUndoSound()
+    }
+    
+    toast.success('Chore completion undone', {
+      description: `${undoData.starsEarned} stars removed`,
+    })
+  }
+
   const handleCompleteChore = (choreId: string) => {
     const chore = safeChores.find((c) => c.id === choreId)
     if (!chore) return
 
+    const member = safeMembers.find((m) => m.id === chore.assignedTo)
+    if (!member) return
+
     const starsEarned = getStarsForChore(chore.frequency)
     const currentMonthKey = getCurrentMonthKey()
     const currentWeekKey = getCurrentWeekKey()
+    
+    // Store undo data before making changes
+    undoDataRef.current = {
+      chore: { ...chore },
+      member: { ...member },
+      starsEarned,
+      monthKey: currentMonthKey,
+      weekKey: currentWeekKey,
+    }
     
     setChores((current) =>
       (current || []).map((c) =>
@@ -273,6 +340,9 @@ function App() {
             
             setTimeout(() => {
               setUnlockedAchievement(newAchievements[0])
+              if (soundEnabled) {
+                playAchievementSound()
+              }
             }, 1200)
 
             if (newAchievements.length > 1) {
@@ -286,11 +356,33 @@ function App() {
       })
     )
 
+    // Play celebration sound
+    if (soundEnabled) {
+      playCelebrationSound()
+    }
+
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 1000)
+    
+    // Show toast with undo action
     toast.success(`Chore completed! +${starsEarned} ⭐`, {
       description: `Great job! Keep up the amazing work!`,
+      duration: 10000, // 10 second window for undo
+      action: {
+        label: (
+          <span className="flex items-center gap-1">
+            <ArrowCounterClockwise className="h-3 w-3" />
+            Undo
+          </span>
+        ),
+        onClick: handleUndoCompletion,
+      },
     })
+    
+    // Clear undo data after 30 seconds
+    setTimeout(() => {
+      undoDataRef.current = null
+    }, 30000)
   }
 
   const handleDeleteChore = (choreId: string) => {
@@ -371,7 +463,10 @@ function App() {
               Manage chores and schedules together
             </p>
           </div>
-          <ThemeToggle isDark={isDarkMode || false} onToggle={handleToggleTheme} />
+          <div className="flex items-center gap-1">
+            <SoundToggle enabled={soundEnabled || true} onToggle={handleToggleSound} />
+            <ThemeToggle isDark={isDarkMode || false} onToggle={handleToggleTheme} />
+          </div>
         </header>
 
         <Tabs defaultValue="dashboard" className="space-y-6">

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { Chore, ChoreFrequency, FamilyMember } from '@/lib/types'
 import { getFrequencyLabel, getStarsForChore } from '@/lib/helpers'
-import { Star } from '@phosphor-icons/react'
+import { CHORE_TEMPLATES, TEMPLATE_CATEGORIES, ChoreTemplate } from '@/lib/chore-templates'
+import { Star, CaretDown, Lightning } from '@phosphor-icons/react'
 
 interface ChoreDialogProps {
   chore?: Chore
@@ -37,6 +43,30 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
   const [description, setDescription] = useState(chore?.description || '')
   const [frequency, setFrequency] = useState<ChoreFrequency>(chore?.frequency || 'weekly')
   const [assignedTo, setAssignedTo] = useState(chore?.assignedTo || (members[0]?.id || ''))
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [templateCategory, setTemplateCategory] = useState('all')
+
+  // Reset form when dialog opens/closes or chore changes
+  useEffect(() => {
+    if (open) {
+      setTitle(chore?.title || '')
+      setDescription(chore?.description || '')
+      setFrequency(chore?.frequency || 'weekly')
+      setAssignedTo(chore?.assignedTo || (members[0]?.id || ''))
+      setShowTemplates(false)
+    }
+  }, [open, chore, members])
+
+  const filteredTemplates = templateCategory === 'all' 
+    ? CHORE_TEMPLATES 
+    : CHORE_TEMPLATES.filter((t) => t.category === templateCategory)
+
+  const handleSelectTemplate = (template: ChoreTemplate) => {
+    setTitle(template.title)
+    setDescription(template.description)
+    setFrequency(template.frequency)
+    setShowTemplates(false)
+  }
 
   const handleSave = () => {
     if (!title.trim() || !assignedTo) return
@@ -50,18 +80,12 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       lastCompleted: chore?.lastCompleted,
     })
     
-    if (!chore) {
-      setTitle('')
-      setDescription('')
-      setFrequency('weekly')
-      setAssignedTo(members[0]?.id || '')
-    }
     onOpenChange(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{chore ? 'Edit' : 'Add'} Chore</DialogTitle>
           <DialogDescription>
@@ -70,6 +94,50 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {/* Quick Templates Section - Only show when adding new chore */}
+          {!chore && (
+            <Collapsible open={showTemplates} onOpenChange={setShowTemplates}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <div className="flex items-center gap-2">
+                    <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
+                    <span>Quick Templates</span>
+                  </div>
+                  <CaretDown className={`h-4 w-4 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3 space-y-3">
+                <Select value={templateCategory} onValueChange={setTemplateCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter by category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEMPLATE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+                  {filteredTemplates.map((template, idx) => (
+                    <button
+                      key={`${template.title}-${idx}`}
+                      onClick={() => handleSelectTemplate(template)}
+                      className="flex items-center justify-between p-2 text-left text-sm rounded-md border hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      <span className="font-medium truncate">{template.title}</span>
+                      <div className="flex items-center gap-1 text-muted-foreground shrink-0 ml-2">
+                        <Star weight="fill" className="h-3 w-3 text-amber-500" />
+                        <span className="text-xs">{getStarsForChore(template.frequency)}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input

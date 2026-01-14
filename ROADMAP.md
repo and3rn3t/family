@@ -31,12 +31,12 @@ Transform daily household management from a chore into a collaborative family ga
 ### 1.1 User Experience Improvements
 - [x] **Dark mode toggle** - Easy on the eyes for evening use ✅
 - [ ] **Theme selector** - Let each family pick their vibe (Cozy, Vibrant, Minimal, Seasonal)
-- [ ] **Sound effects toggle** - Optional celebration sounds and button clicks
-- [ ] **Undo chore completion** - Accidents happen, 30-second undo window
+- [x] **Sound effects toggle** - Optional celebration sounds and button clicks ✅
+- [x] **Undo chore completion** - Accidents happen, 30-second undo window ✅
 - [ ] **Quick actions** - Swipe to complete on mobile
 
 ### 1.2 Chore Enhancements
-- [ ] **Chore templates** - Pre-built common household chores to quick-add
+- [x] **Chore templates** - Pre-built common household chores to quick-add ✅
 - [ ] **Chore rotation** - Auto-rotate assignments weekly/monthly
 - [ ] **Bulk chore creation** - Add multiple chores at once
 - [ ] **Chore difficulty rating** - Easy/Medium/Hard with star multipliers
@@ -287,9 +287,9 @@ Transform daily household management from a chore into a collaborative family ga
 
 ### Quick Wins (1-2 days each)
 1. ~~Dark mode toggle~~ ✅
-2. Sound effects toggle  
-3. Chore templates
-4. Undo completion
+2. ~~Sound effects toggle~~ ✅
+3. ~~Chore templates~~ ✅
+4. ~~Undo completion~~ ✅
 5. ~~Clock display on dashboard~~ ✅
 
 ### Medium Effort (3-5 days each)
