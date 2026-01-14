@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { FamilyMember, Chore, Event } from '@/lib/types'
 import { MemberAvatar } from './MemberAvatar'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getNextDueDate, isChoreComplete, isChoreOverdue } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
-import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot } from '@phosphor-icons/react'
+import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel } from '@phosphor-icons/react'
 
 interface ScheduleViewProps {
   members: FamilyMember[]
@@ -17,6 +19,8 @@ interface ScheduleViewProps {
 }
 
 export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent, onDeleteEvent }: ScheduleViewProps) {
+  const [selectedMemberId, setSelectedMemberId] = useState<string>('all')
+
   const today = new Date()
   const startOfWeek = new Date(today)
   startOfWeek.setDate(today.getDate() - today.getDay())
@@ -30,14 +34,18 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
   const getChoresForDay = (date: Date) => {
     return chores.filter((chore) => {
       const dueDate = getNextDueDate(chore)
-      return dueDate.toDateString() === date.toDateString()
+      const matchesDate = dueDate.toDateString() === date.toDateString()
+      const matchesMember = selectedMemberId === 'all' || chore.assignedTo === selectedMemberId
+      return matchesDate && matchesMember
     })
   }
 
   const getEventsForDay = (date: Date) => {
     return events.filter((event) => {
       const eventDate = new Date(event.date)
-      return eventDate.toDateString() === date.toDateString()
+      const matchesDate = eventDate.toDateString() === date.toDateString()
+      const matchesMember = selectedMemberId === 'all' || !event.assignedTo || event.assignedTo === selectedMemberId
+      return matchesDate && matchesMember
     })
   }
 
@@ -97,10 +105,34 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
             Chores, events, and activities for the week
           </p>
         </div>
-        <Button onClick={onAddEvent} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Event
-        </Button>
+        <div className="flex gap-2">
+          <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+            <SelectTrigger className="w-[180px]">
+              <div className="flex items-center gap-2">
+                <Funnel className="h-4 w-4" />
+                <SelectValue placeholder="Filter by member" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Members</SelectItem>
+              {members.map((member) => (
+                <SelectItem key={member.id} value={member.id}>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="h-3 w-3 rounded-full" 
+                      style={{ backgroundColor: member.color }}
+                    />
+                    {member.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={onAddEvent} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Event
+          </Button>
+        </div>
       </div>
 
       {members.length > 0 && (
