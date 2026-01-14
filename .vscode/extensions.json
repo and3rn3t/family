@@ -1,0 +1,46 @@
+{
+  "recommendations": [
+    // Essential - Code Quality
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    
+    // TypeScript/JavaScript
+    "ms-vscode.vscode-typescript-next",
+    
+    // React Development
+    "dsznajder.es7-react-js-snippets",
+    "burkeholland.simple-react-snippets",
+    
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+    
+    // AI Assistants
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    
+    // File Icons
+    "PKief.material-icon-theme",
+    
+    // Productivity
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "steoates.autoimport",
+    
+    // CSS/Styling
+    "csstools.postcss",
+    
+    // Docker (for deployment)
+    "ms-azuretools.vscode-docker",
+    
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    
+    // Error Lens (inline error display)
+    "usernamehw.errorlens"
+  ],
+  "unwantedRecommendations": []
+}

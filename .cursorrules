@@ -1,0 +1,182 @@
+# Family Organizer - Cursor AI Agent Rules
+
+## Project Overview
+
+This is a **Family Organizer** application - a collaborative chore and schedule management system designed for families. It features a gamified experience with star rewards, achievements, and competitions to motivate household task completion.
+
+**Tech Stack:**
+- **Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 7.x
+- **Styling**: Tailwind CSS 4.x with custom theme (oklch colors)
+- **UI Components**: shadcn/ui v4 (Radix primitives)
+- **Icons**: Phosphor Icons (@phosphor-icons/react)
+- **Animations**: Framer Motion
+- **State**: @github/spark KV storage (persistent local storage)
+- **Forms**: react-hook-form + zod validation
+- **Notifications**: Sonner toast library
+
+## Project Structure
+
+```
+src/
+├── App.tsx              # Main app with state management and routing
+├── components/
+│   ├── ui/              # shadcn/ui primitives (don't modify directly)
+│   ├── *View.tsx        # Main view components (Dashboard, Schedule, etc.)
+│   ├── *Dialog.tsx      # Modal dialogs for CRUD operations
+│   ├── *Card.tsx        # Card components for displaying entities
+│   └── *.tsx            # Feature-specific components
+├── lib/
+│   ├── types.ts         # TypeScript interfaces and constants
+│   ├── helpers.ts       # Utility functions (date, stars, competitions)
+│   ├── achievements.ts  # Achievement definitions and checking logic
+│   ├── avatar-icons.ts  # Avatar icon definitions
+│   └── utils.ts         # shadcn/ui utilities (cn function)
+├── hooks/
+│   └── use-mobile.ts    # Mobile detection hook
+└── styles/
+    └── theme.css        # Theme CSS variables
+```
+
+## Key Data Models
+
+### FamilyMember
+- id, name, color, avatarUrl?, avatarIcon?
+- stars (total), monthlyStars, weeklyStars (Record<string, number>)
+- achievements (string[] of achievement IDs)
+
+### Chore
+- id, title, description, frequency (daily|weekly|biweekly|monthly)
+- assignedTo (member ID), createdAt, lastCompleted?
+
+### Event
+- id, title, description, category (sports|school|medical|social|other)
+- date, time?, assignedTo?, allDay, recurrence, recurringDays?
+- parentEventId? (for recurring instances)
+
+### Achievement
+- id, title, description, icon, rarity (common|rare|epic|legendary)
+- condition function that checks if unlocked
+
+## Coding Conventions
+
+### TypeScript
+- Use strict TypeScript - no `any` types unless absolutely necessary
+- Prefer interfaces over types for object shapes
+- Use discriminated unions for variant types
+- Export types from `lib/types.ts`
+
+### React Patterns
+- Use functional components with hooks
+- State managed via `useKV` hook from @github/spark for persistence
+- Use controlled components for forms
+- Memoize expensive computations with useMemo
+- Use useCallback for event handlers passed to children
+
+### Component Guidelines
+- Components should be self-contained and reusable
+- Props interfaces should be defined explicitly
+- Use destructuring for props
+- Default to `undefined` not `null` for optional props
+- Keep components under 200 lines; extract sub-components
+
+### Styling
+- Use Tailwind CSS classes exclusively
+- Use the `cn()` utility for conditional classes
+- Follow the existing color palette (oklch-based)
+- Mobile-first responsive design
+- Use CSS variables from `--primary`, `--secondary`, `--accent`, etc.
+
+### Animations
+- Use Framer Motion for complex animations
+- Keep animations subtle and purposeful (max 300-500ms)
+- Use `AnimatePresence` for enter/exit transitions
+
+## State Management
+
+### Spark KV Storage
+```typescript
+const [data, setData] = useKV<Type>('key-name', defaultValue)
+```
+- Data persists in localStorage automatically
+- Always provide safe defaults: `const safeData = data || []`
+- Use functional updates: `setData(current => [...current, newItem])`
+
+### Key Storage Keys
+- `family-members` - FamilyMember[]
+- `chores` - Chore[]
+- `events` - Event[]
+- `monthly-competitions` - MonthlyCompetition[]
+- `weekly-competitions` - WeeklyCompetition[]
+
+## Feature Implementation Guide
+
+### Adding a New Feature
+1. Define types in `lib/types.ts`
+2. Add helper functions in `lib/helpers.ts`
+3. Create component(s) in `components/`
+4. Wire up state in `App.tsx`
+5. Add to appropriate View component
+
+### Star Rewards System
+- Daily chore: 1 star
+- Weekly chore: 3 stars
+- Bi-weekly chore: 5 stars
+- Monthly chore: 10 stars
+- Stars track: total, monthly (by month key), weekly (by week key)
+
+### Achievement System
+- Defined in `lib/achievements.ts`
+- Each achievement has a condition function
+- Checked after every chore completion
+- Rarities: common, rare, epic, legendary (with distinct colors)
+
+## UI/UX Guidelines
+
+### Design Principles
+- **Glanceable**: Information visible from across room (kiosk use)
+- **Collaborative**: All family members feel ownership
+- **Motivating**: Completing tasks feels rewarding
+
+### Component States
+- Handle loading, empty, error states gracefully
+- Provide helpful empty states with CTAs
+- Use toast notifications for feedback
+- Celebrate achievements with animations
+
+### Accessibility
+- Minimum touch targets: 48px
+- Maintain 4.5:1 contrast ratios
+- Use semantic HTML elements
+- Include aria labels where needed
+
+## Common Tasks
+
+### Adding a New shadcn/ui Component
+```bash
+npx shadcn@latest add [component-name]
+```
+
+### Running Development Server
+```bash
+npm install
+npm run dev
+```
+Runs at http://localhost:5173
+
+### Building for Production
+```bash
+npm run build
+npm run preview
+```
+
+### Deployment
+See `DEPLOYMENT.md` for Raspberry Pi/Docker deployment instructions.
+
+## Important Notes
+
+- This app targets kiosk displays on Raspberry Pi - optimize for large screens
+- All data is local-only; no backend or cloud sync
+- Use Phosphor Icons consistently (not lucide or heroicons for new features)
+- Keep bundle size minimal for Raspberry Pi performance
+- Test with both mouse/keyboard and touch interactions
