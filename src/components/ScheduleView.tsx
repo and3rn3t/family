@@ -90,7 +90,7 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-3xl font-bold tracking-tight">Weekly Schedule</h2>
           <p className="text-muted-foreground mt-1">
@@ -102,6 +102,23 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
           Add Event
         </Button>
       </div>
+
+      {members.length > 0 && (
+        <Card className="p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Family Members:</span>
+            {members.map((member) => (
+              <div key={member.id} className="flex items-center gap-2">
+                <div 
+                  className="h-4 w-4 rounded-sm border-2" 
+                  style={{ borderColor: member.color, backgroundColor: `${member.color}20` }}
+                />
+                <span className="text-sm font-medium">{member.name}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-7">
         {days.map((date, index) => {
@@ -151,9 +168,13 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                       <div
                         key={event.id}
                         className={cn(
-                          'p-2 rounded-lg border space-y-2 cursor-pointer hover:shadow-sm transition-shadow',
+                          'p-2 rounded-lg border-2 space-y-2 cursor-pointer hover:shadow-sm transition-shadow',
                           getCategoryColor(event.category)
                         )}
+                        style={member ? {
+                          borderLeftColor: member.color,
+                          borderLeftWidth: '4px',
+                        } : undefined}
                         onClick={() => onEditEvent(event)}
                       >
                         <div className="flex items-start gap-2">
@@ -191,10 +212,15 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                       <div
                         key={chore.id}
                         className={cn(
-                          'p-2 rounded-lg border space-y-2',
+                          'p-2 rounded-lg border-2 space-y-2',
                           complete && 'bg-[oklch(0.95_0.05_290)] border-[oklch(0.75_0.09_290)]',
-                          overdue && !complete && 'border-accent bg-accent/10'
+                          overdue && !complete && 'border-accent bg-accent/10',
+                          !complete && !overdue && 'border-border bg-card'
                         )}
+                        style={member && !complete ? {
+                          borderLeftColor: member.color,
+                          borderLeftWidth: '4px',
+                        } : undefined}
                       >
                         <div className="flex items-start justify-between gap-1">
                           <p className={cn(
