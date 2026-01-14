@@ -2,6 +2,7 @@ import { FamilyMember, Chore } from '@/lib/types'
 import { MemberCard } from './MemberCard'
 import { ChoreCard } from './ChoreCard'
 import { Leaderboard } from './Leaderboard'
+import { Clock } from './Clock'
 import { Button } from '@/components/ui/button'
 import { Plus } from '@phosphor-icons/react'
 import { isChoreComplete } from '@/lib/helpers'
@@ -48,6 +49,11 @@ export function DashboardView({
 
   return (
     <div className="space-y-8">
+      {/* Clock Display - Glanceable from across the room */}
+      <div className="flex justify-center py-4">
+        <Clock showDate={true} />
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-heading text-3xl font-bold tracking-tight">Family Dashboard</h2>

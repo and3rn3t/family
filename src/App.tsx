@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { ChartBar, Calendar, Users, Trophy } from '@phosphor-icons/react'
 import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { 
   getStarsForChore, 
   getCurrentMonthKey, 
@@ -35,6 +36,7 @@ function App() {
   const [weeklyCompetitions, setWeeklyCompetitions] = useKV<WeeklyCompetition[]>('weekly-competitions', [])
   const [lastMonthCheck, setLastMonthCheck] = useKV<string>('last-month-check', '')
   const [lastWeekCheck, setLastWeekCheck] = useKV<string>('last-week-check', '')
+  const [isDarkMode, setIsDarkMode] = useKV<boolean>('dark-mode', false)
   
   const [memberDialogOpen, setMemberDialogOpen] = useState(false)
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
@@ -54,6 +56,19 @@ function App() {
   const safeWeeklyCompetitions = weeklyCompetitions || []
 
   const expandedEvents = getExpandedEvents(safeEvents)
+
+  // Apply dark mode class to document
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [isDarkMode])
+
+  const handleToggleTheme = () => {
+    setIsDarkMode((current) => !current)
+  }
 
   useEffect(() => {
     const currentMonthKey = getCurrentMonthKey()
@@ -347,13 +362,16 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <header className="mb-8">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold tracking-tight">
-            Family Organizer
-          </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Manage chores and schedules together
-          </p>
+        <header className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="font-heading text-4xl md:text-5xl font-bold tracking-tight">
+              Family Organizer
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Manage chores and schedules together
+            </p>
+          </div>
+          <ThemeToggle isDark={isDarkMode || false} onToggle={handleToggleTheme} />
         </header>
 
         <Tabs defaultValue="dashboard" className="space-y-6">
