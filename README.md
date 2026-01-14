@@ -2,16 +2,29 @@
 
 A beautiful, collaborative family chore and schedule management system designed to run on a Raspberry Pi 4B with a kiosk display. Built with React, TypeScript, and Tailwind CSS.
 
+> 🏠 **A passion project for our family** - Making household management fun and engaging!
+
 ## Features
 
 - 👨‍👩‍👧‍👦 **Family Member Management** - Add and manage family members with custom avatars
 - ✅ **Chore Tracking** - Create, assign, and track household chores
-- 📅 **Weekly Schedule** - Visual calendar showing upcoming chores
-- 📊 **Progress Dashboard** - See completion stats and family progress
+- ⭐ **Star Rewards** - Earn stars for completing chores
+- 🏆 **Achievements** - Unlock achievements for milestones (common → legendary)
+- 📊 **Competitions** - Monthly & weekly family competitions
+- 📅 **Event Calendar** - Track sports, school, medical, and social events
 - 🎉 **Celebration Animations** - Rewarding feedback when chores are completed
-- 💾 **Persistent Storage** - All data saved locally using Spark KV storage
+- 💾 **Persistent Storage** - All data saved locally, no cloud required
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile
 - 🎨 **Beautiful UI** - Vibrant, modern design that makes chores fun
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [FEATURES.md](./FEATURES.md) | Complete feature documentation |
+| [ROADMAP.md](./ROADMAP.md) | Future features and product roadmap |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Development setup and guidelines |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Raspberry Pi deployment instructions |
 
 ## Quick Start
 
