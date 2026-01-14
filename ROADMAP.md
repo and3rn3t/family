@@ -29,7 +29,7 @@ Transform daily household management from a chore into a collaborative family ga
 *Making the existing experience smoother and more delightful*
 
 ### 1.1 User Experience Improvements
-- [ ] **Dark mode toggle** - Easy on the eyes for evening use
+- [x] **Dark mode toggle** - Easy on the eyes for evening use ✅
 - [ ] **Theme selector** - Let each family pick their vibe (Cozy, Vibrant, Minimal, Seasonal)
 - [ ] **Sound effects toggle** - Optional celebration sounds and button clicks
 - [ ] **Undo chore completion** - Accidents happen, 30-second undo window
@@ -216,7 +216,7 @@ Transform daily household management from a chore into a collaborative family ga
 *Quality of life additions*
 
 ### 8.1 Kiosk Enhancements
-- [ ] **Clock display** - Large time on dashboard
+- [x] **Clock display** - Large time on dashboard ✅
 - [ ] **Photo slideshow mode** - Display family photos when idle
 - [ ] **Screen saver** - Animated display after inactivity
 - [ ] **Auto-refresh** - Keep data fresh on always-on display
@@ -286,11 +286,11 @@ Transform daily household management from a chore into a collaborative family ga
 ## Implementation Priority
 
 ### Quick Wins (1-2 days each)
-1. Dark mode toggle
+1. ~~Dark mode toggle~~ ✅
 2. Sound effects toggle  
 3. Chore templates
 4. Undo completion
-5. Clock display on dashboard
+5. ~~Clock display on dashboard~~ ✅
 
 ### Medium Effort (3-5 days each)
 1. Reward store basic
