@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getNextDueDate, isChoreComplete, isChoreOverdue } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
-import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { Plus, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, Funnel, CaretLeft, CaretRight, Printer, DownloadSimple } from '@phosphor-icons/react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
 interface ScheduleViewProps {
   members: FamilyMember[]
@@ -108,6 +110,116 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
     }
   }
 
+  const handlePrint = () => {
+    window.print()
+    toast.success('Opening print dialog...')
+  }
+
+  const handleExportCSV = () => {
+    const csvRows: string[][] = []
+    csvRows.push(['Date', 'Day', 'Type', 'Title', 'Time', 'Category', 'Assigned To', 'Status'])
+
+    days.forEach((date) => {
+      const dayChores = getChoresForDay(date)
+      const dayEvents = getEventsForDay(date)
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
+      const dateStr = date.toLocaleDateString('en-US')
+
+      dayEvents.forEach((event) => {
+        const member = event.assignedTo 
+          ? members.find((m) => m.id === event.assignedTo)?.name || 'Unassigned'
+          : 'All'
+        csvRows.push([
+          dateStr,
+          dayName,
+          'Event',
+          event.title,
+          event.allDay ? 'All Day' : (event.time || ''),
+          event.category,
+          member,
+          ''
+        ])
+      })
+
+      dayChores.forEach((chore) => {
+        const member = members.find((m) => m.id === chore.assignedTo)?.name || 'Unassigned'
+        const complete = isChoreComplete(chore)
+        const overdue = isChoreOverdue(chore)
+        const status = complete ? 'Complete' : (overdue ? 'Overdue' : 'Pending')
+        
+        csvRows.push([
+          dateStr,
+          dayName,
+          'Chore',
+          chore.title,
+          '',
+          chore.frequency,
+          member,
+          status
+        ])
+      })
+    })
+
+    const csvContent = csvRows.map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `schedule_${formatDateRange().replace(/[,\s]/g, '_')}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success('Schedule exported to CSV!')
+  }
+
+  const handleExportJSON = () => {
+    const scheduleData = {
+      dateRange: formatDateRange(),
+      startDate: days[0].toISOString(),
+      endDate: days[days.length - 1].toISOString(),
+      filteredMember: selectedMemberId === 'all' ? 'all' : members.find(m => m.id === selectedMemberId)?.name,
+      days: days.map((date) => ({
+        date: date.toISOString(),
+        dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
+        events: getEventsForDay(date).map((event) => ({
+          title: event.title,
+          description: event.description,
+          category: event.category,
+          time: event.time,
+          allDay: event.allDay,
+          assignedTo: event.assignedTo 
+            ? members.find((m) => m.id === event.assignedTo)?.name 
+            : null,
+          recurrence: event.recurrence
+        })),
+        chores: getChoresForDay(date).map((chore) => ({
+          title: chore.title,
+          description: chore.description,
+          frequency: chore.frequency,
+          assignedTo: members.find((m) => m.id === chore.assignedTo)?.name || 'Unassigned',
+          complete: isChoreComplete(chore),
+          overdue: isChoreOverdue(chore)
+        }))
+      }))
+    }
+
+    const jsonContent = JSON.stringify(scheduleData, null, 2)
+    const blob = new Blob([jsonContent], { type: 'application/json' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `schedule_${formatDateRange().replace(/[,\s]/g, '_')}.json`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success('Schedule exported to JSON!')
+  }
+
   if (members.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -123,14 +235,24 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="hidden print:block mb-8">
+        <h1 className="font-heading text-4xl font-bold text-center mb-2">Family Schedule</h1>
+        <p className="text-center text-lg text-muted-foreground">{formatDateRange()}</p>
+        {selectedMemberId !== 'all' && (
+          <p className="text-center text-muted-foreground">
+            Filtered for: {members.find(m => m.id === selectedMemberId)?.name}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div>
           <h2 className="font-heading text-3xl font-bold tracking-tight">Weekly Schedule</h2>
           <p className="text-muted-foreground mt-1">
             Chores, events, and activities for the week
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
             <SelectTrigger className="w-[180px]">
               <div className="flex items-center gap-2">
@@ -153,14 +275,34 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
               ))}
             </SelectContent>
           </Select>
+          <Button onClick={handlePrint} variant="outline" className="flex items-center gap-2">
+            <Printer className="h-4 w-4" />
+            <span className="hidden sm:inline">Print</span>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <DownloadSimple className="h-4 w-4" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportCSV}>
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportJSON}>
+                Export as JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={onAddEvent} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Add Event
+            <span className="hidden sm:inline">Add Event</span>
           </Button>
         </div>
       </div>
 
-      <Card className="p-4">
+      <Card className="p-4 print:hidden">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Button
@@ -199,7 +341,7 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
       </Card>
 
       {members.length > 0 && (
-        <Card className="p-4">
+        <Card className="p-4 print:hidden">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-medium text-muted-foreground">Family Members:</span>
             {members.map((member) => (

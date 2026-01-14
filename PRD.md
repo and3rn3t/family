@@ -55,11 +55,11 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Achievements unlock correctly, animations display properly, achievement progress persists, and members can view their earned achievements
 
 ### Schedule/Calendar View
-- **Functionality**: Display weekly schedule showing which chores are due for each family member, plus non-chore events like sports practices, school events, medical appointments, and social activities
-- **Purpose**: Provide temporal context, help with planning, and keep the entire family informed of all scheduled activities
+- **Functionality**: Display weekly schedule showing which chores are due for each family member, plus non-chore events like sports practices, school events, medical appointments, and social activities with print and export capabilities
+- **Purpose**: Provide temporal context, help with planning, keep the entire family informed of all scheduled activities, and enable offline/external schedule sharing
 - **Trigger**: Navigate to schedule view tab
-- **Progression**: Open schedule → View current week → See chores and events organized by day → Identify upcoming tasks and activities → Click event to edit
-- **Success criteria**: Schedule accurately reflects chore frequencies and events, updates in real-time, shows current day prominently, and displays event categories with visual distinction
+- **Progression**: Open schedule → View current week → See chores and events organized by day → Identify upcoming tasks and activities → Click event to edit → Optional: Print or export schedule
+- **Success criteria**: Schedule accurately reflects chore frequencies and events, updates in real-time, shows current day prominently, displays event categories with visual distinction, and produces clean print output and exportable data files
 
 ### Event Management
 - **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, optional family member assignment, and recurrence settings (none, weekly, monthly)
@@ -75,7 +75,12 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Progression**: App loads → Dashboard displays → Shows leaderboard with star rankings → Shows completion percentages → Highlights achievements → Displays monthly competition status
 - **Success criteria**: Statistics are accurate, update immediately upon completion, leaderboard sorts correctly by stars, displays engagingly, and monthly standings reflect current month
 
-### Competition View
+### Print & Export Schedule
+- **Functionality**: Print weekly schedule or export it as CSV or JSON files for external use, archiving, or sharing
+- **Purpose**: Enable offline schedule access, facilitate integration with other tools, and provide archival capabilities
+- **Trigger**: Click "Print" button or "Export" dropdown in schedule view
+- **Progression**: View schedule → Click print/export → Select format (Print/CSV/JSON) → Browser print dialog opens or file downloads → Schedule saved/printed with current filter applied
+- **Success criteria**: Print layout is clean and optimized for paper, exported files contain accurate schedule data with all relevant details, files are properly named with date range, and exports respect current member filter
 - **Functionality**: Dedicated view showing current month's live rankings, days remaining, past competition winners, and historical performance
 - **Purpose**: Focus attention on monthly competition, celebrate past winners, and encourage ongoing participation
 - **Trigger**: Navigate to Competition tab
@@ -96,6 +101,8 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Recurring Event Editing** - Editing a recurring event updates the base event pattern; editing a specific instance creates a new one-time event
 - **Recurring Event Deletion** - Only base recurring events can be deleted (removes entire series); generated instances cannot be individually deleted
 - **Infinite Recurrence** - Events without end dates generate instances up to 3 months in advance for display
+- **Print Empty Schedule** - Printing with no chores or events shows clean layout with "Nothing scheduled" message
+- **Export Format Compatibility** - CSV files use standard format compatible with Excel/Google Sheets; JSON uses structured format for programmatic access
 
 ## Design Direction
 
@@ -191,6 +198,10 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Users** - Social events
   - **CalendarDot** - General events
   - **ArrowsClockwise** - Recurring events indicator
+  - **Printer** - Print schedule
+  - **DownloadSimple** - Export schedule
+  - **Funnel** - Filter members
+  - **CaretLeft/CaretRight** - Week navigation
 
 - **Spacing**:
   - Container padding: `p-6` (24px) on mobile, `p-8` (32px) on tablet+
