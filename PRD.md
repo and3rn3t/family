@@ -62,11 +62,11 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Schedule accurately reflects chore frequencies and events, updates in real-time, shows current day prominently, and displays event categories with visual distinction
 
 ### Event Management
-- **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, and optional family member assignment
-- **Purpose**: Track family activities beyond chores to maintain a complete family schedule in one place
+- **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, optional family member assignment, and recurrence settings (none, weekly, monthly)
+- **Purpose**: Track family activities beyond chores to maintain a complete family schedule in one place, with support for repeating events
 - **Trigger**: Click "Add Event" button in schedule view or edit existing events
-- **Progression**: Click add → Enter event details → Select category → Choose date and time → Optionally assign to member → Save → Event appears in schedule
-- **Success criteria**: Events persist across sessions, display correctly in schedule view with category-based styling, can be edited and deleted, and integrate seamlessly with chores
+- **Progression**: Click add → Enter event details → Select category → Choose date and time → Optionally assign to member → Set recurrence (none/weekly/monthly) → Optionally set end date for recurring events → Save → Event appears in schedule with all future instances generated
+- **Success criteria**: Events persist across sessions, recurring events automatically generate future instances, display correctly in schedule view with category-based styling and recurrence indicators, can be edited (updates base event) and deleted (only non-recurring or base recurring events), and integrate seamlessly with chores
 
 ### Progress Dashboard
 - **Functionality**: Show completion statistics per family member, overall household progress, star leaderboard, and current monthly competition standings
@@ -93,6 +93,9 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Month Transition** - Automatically finalize previous month's competition, declare winner, reset monthly star counts, and start new competition
 - **No Competition Activity** - Handle months where no stars were earned gracefully
 - **Achievement Spam** - If multiple achievements unlock simultaneously, show primary notification and toast for additional ones
+- **Recurring Event Editing** - Editing a recurring event updates the base event pattern; editing a specific instance creates a new one-time event
+- **Recurring Event Deletion** - Only base recurring events can be deleted (removes entire series); generated instances cannot be individually deleted
+- **Infinite Recurrence** - Events without end dates generate instances up to 3 months in advance for display
 
 ## Design Direction
 
@@ -153,13 +156,13 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Monthly Competition Card**: Large featured card showing current month standings, countdown, and live rankings
   - **Past Competition Cards**: Compact cards showing historical winners and final standings
   - **Weekly Schedule Grid**: Custom calendar-style layout showing chores and events organized by day
-  - **Event Cards**: Custom component with category icon, title, time, optional assigned member, and category-based color coding
+  - **Event Cards**: Custom component with category icon, title, time, optional assigned member, recurrence indicator badge, and category-based color coding
   - **Celebration Component**: Custom animation overlay for completed chores using framer-motion
 
 - **States**:
   - **Buttons**: Resting (solid primary), Hover (slightly darker with subtle lift), Active (pressed down), Disabled (muted with reduced opacity)
   - **Chore Cards**: Pending (normal), Hover (elevated shadow), Overdue (yellow accent border), Complete (muted with checkmark and lavender tint)
-  - **Event Cards**: Category-based styling (sports=green, school=blue, medical=red, social=coral, other=muted), hover (shadow), clickable for editing
+  - **Event Cards**: Category-based styling (sports=green, school=blue, medical=red, social=coral, other=muted), recurring events show badge indicator, hover (shadow), clickable for editing, delete disabled for recurring instances
   - **Achievement Cards**: Locked (grayscale, muted), Unlocked (full color with rarity-based accent)
   - **Competition Rankings**: Active month (highlighted border and background), Past competitions (standard card style)
   - **Input Fields**: Empty (subtle border), Focus (primary color border with glow), Filled (darker border), Error (destructive color border)
@@ -187,6 +190,7 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **FirstAid** - Medical appointments
   - **Users** - Social events
   - **CalendarDot** - General events
+  - **ArrowsClockwise** - Recurring events indicator
 
 - **Spacing**:
   - Container padding: `p-6` (24px) on mobile, `p-8` (32px) on tablet+

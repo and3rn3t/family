@@ -1,4 +1,4 @@
-import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition } from './types'
+import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType } from './types'
 
 export const getFrequencyLabel = (frequency: ChoreFrequency): string => {
   const labels: Record<ChoreFrequency, string> = {
@@ -185,4 +185,60 @@ export const finalizeWeeklyCompetition = (
     startDate: getWeekStartDate(weekKey).getTime(),
     endDate: getWeekEndDate(weekKey).getTime(),
   }
+}
+
+export const generateRecurringEventInstances = (
+  baseEvent: Event,
+  startDate: Date,
+  endDate: Date
+): Event[] => {
+  if (baseEvent.recurrence === 'none') {
+    return [baseEvent]
+  }
+
+  const instances: Event[] = []
+  const eventDate = new Date(baseEvent.date)
+  const maxEndDate = baseEvent.recurrenceEndDate 
+    ? new Date(Math.min(baseEvent.recurrenceEndDate, endDate.getTime()))
+    : endDate
+
+  let currentDate = new Date(eventDate)
+
+  while (currentDate <= maxEndDate) {
+    if (currentDate >= startDate) {
+      instances.push({
+        ...baseEvent,
+        id: `${baseEvent.id}-${currentDate.getTime()}`,
+        date: currentDate.getTime(),
+        parentEventId: baseEvent.id,
+      })
+    }
+
+    if (baseEvent.recurrence === 'weekly') {
+      currentDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+    } else if (baseEvent.recurrence === 'monthly') {
+      currentDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        currentDate.getDate()
+      )
+    }
+  }
+
+  return instances
+}
+
+export const getExpandedEvents = (events: Event[], monthsAhead: number = 3): Event[] => {
+  const now = new Date()
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+  const endDate = new Date(now.getFullYear(), now.getMonth() + monthsAhead, 0)
+
+  const expandedEvents: Event[] = []
+
+  events.forEach((event) => {
+    const eventInstances = generateRecurringEventInstances(event, startDate, endDate)
+    expandedEvents.push(...eventInstances)
+  })
+
+  return expandedEvents.sort((a, b) => a.date - b.date)
 }

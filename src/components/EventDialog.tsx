@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Event, EventCategory, FamilyMember } from '@/lib/types'
+import { Event, EventCategory, FamilyMember, RecurrenceType } from '@/lib/types'
 
 interface EventDialogProps {
   event?: Event
@@ -24,6 +24,8 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
   const [time, setTime] = useState('')
   const [assignedTo, setAssignedTo] = useState<string>('')
   const [allDay, setAllDay] = useState(false)
+  const [recurrence, setRecurrence] = useState<RecurrenceType>('none')
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
 
   useEffect(() => {
     if (event) {
@@ -35,6 +37,8 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       setTime(event.time || '')
       setAssignedTo(event.assignedTo || '')
       setAllDay(event.allDay)
+      setRecurrence(event.recurrence)
+      setRecurrenceEndDate(event.recurrenceEndDate ? new Date(event.recurrenceEndDate).toISOString().split('T')[0] : '')
     } else {
       setTitle('')
       setDescription('')
@@ -43,6 +47,8 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       setTime('')
       setAssignedTo('')
       setAllDay(false)
+      setRecurrence('none')
+      setRecurrenceEndDate('')
     }
   }, [event, open])
 
@@ -52,6 +58,7 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
     if (!title.trim() || !date) return
 
     const dateObj = new Date(date)
+    const endDateObj = recurrenceEndDate ? new Date(recurrenceEndDate) : undefined
     
     onSave({
       id: event?.id,
@@ -62,6 +69,9 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       time: allDay ? undefined : time,
       assignedTo: assignedTo || undefined,
       allDay,
+      recurrence,
+      recurrenceEndDate: endDateObj?.getTime(),
+      parentEventId: event?.parentEventId,
     })
     
     onOpenChange(false)
@@ -179,6 +189,36 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
               onCheckedChange={setAllDay}
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="event-recurrence">Recurrence</Label>
+            <Select value={recurrence} onValueChange={(value) => setRecurrence(value as RecurrenceType)}>
+              <SelectTrigger id="event-recurrence">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Does not repeat</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {recurrence !== 'none' && (
+            <div className="space-y-2">
+              <Label htmlFor="recurrence-end">Repeat Until (Optional)</Label>
+              <Input
+                id="recurrence-end"
+                type="date"
+                value={recurrenceEndDate}
+                onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                min={date}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave empty to repeat indefinitely
+              </p>
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

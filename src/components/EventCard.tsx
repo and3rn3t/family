@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MemberAvatar } from './MemberAvatar'
-import { Trash, PencilSimple, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot } from '@phosphor-icons/react'
+import { Trash, PencilSimple, SoccerBall, GraduationCap, FirstAid, Users as UsersIcon, CalendarDot, ArrowsClockwise } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 interface EventCardProps {
@@ -68,6 +68,12 @@ export function EventCard({ event, member, onEdit, onDelete, compact = false }: 
     return null
   }
 
+  const getRecurrenceLabel = () => {
+    if (event.recurrence === 'weekly') return 'Weekly'
+    if (event.recurrence === 'monthly') return 'Monthly'
+    return null
+  }
+
   if (compact) {
     return (
       <div className={cn(
@@ -99,11 +105,17 @@ export function EventCard({ event, member, onEdit, onDelete, compact = false }: 
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge className={cn('flex items-center gap-1', getCategoryColor())}>
                 {getCategoryIcon()}
                 <span className="text-xs font-medium">{getCategoryLabel()}</span>
               </Badge>
+              {event.recurrence !== 'none' && (
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <ArrowsClockwise className="h-3 w-3" />
+                  <span className="text-xs">{getRecurrenceLabel()}</span>
+                </Badge>
+              )}
             </div>
             <h3 className="font-heading font-semibold text-lg">{event.title}</h3>
             {event.description && (
@@ -124,6 +136,7 @@ export function EventCard({ event, member, onEdit, onDelete, compact = false }: 
               size="icon"
               className="h-8 w-8 text-destructive hover:text-destructive"
               onClick={() => onDelete(event.id)}
+              disabled={!!event.parentEventId}
             >
               <Trash className="h-4 w-4" />
             </Button>

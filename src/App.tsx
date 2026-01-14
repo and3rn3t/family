@@ -12,7 +12,8 @@ import {
   getMemberMonthlyStars,
   getMemberWeeklyStars,
   finalizeMonthlyCompetition,
-  finalizeWeeklyCompetition 
+  finalizeWeeklyCompetition,
+  getExpandedEvents 
 } from '@/lib/helpers'
 import { checkNewAchievements } from '@/lib/achievements'
 import { DashboardView } from '@/components/DashboardView'
@@ -51,6 +52,8 @@ function App() {
   const safeEvents = events || []
   const safeCompetitions = competitions || []
   const safeWeeklyCompetitions = weeklyCompetitions || []
+
+  const expandedEvents = getExpandedEvents(safeEvents)
 
   useEffect(() => {
     const currentMonthKey = getCurrentMonthKey()
@@ -160,14 +163,35 @@ function App() {
     eventData: Omit<Event, 'id' | 'createdAt'> & { id?: string }
   ) => {
     if (eventData.id) {
-      setEvents((current) =>
-        (current || []).map((e) =>
-          e.id === eventData.id
-            ? { ...e, ...eventData }
-            : e
+      const existingEvent = safeEvents.find(e => e.id === eventData.id)
+      const isRecurringInstance = existingEvent?.parentEventId
+      
+      if (isRecurringInstance) {
+        const newEvent: Event = {
+          id: `event-${Date.now()}`,
+          title: eventData.title,
+          description: eventData.description,
+          category: eventData.category,
+          date: eventData.date,
+          time: eventData.time,
+          assignedTo: eventData.assignedTo,
+          allDay: eventData.allDay,
+          recurrence: eventData.recurrence,
+          recurrenceEndDate: eventData.recurrenceEndDate,
+          createdAt: Date.now(),
+        }
+        setEvents((current) => [...(current || []), newEvent])
+        toast.success('Created new event from recurring instance!')
+      } else {
+        setEvents((current) =>
+          (current || []).map((e) =>
+            e.id === eventData.id
+              ? { ...e, ...eventData }
+              : e
+          )
         )
-      )
-      toast.success('Event updated!')
+        toast.success('Event updated!')
+      }
     } else {
       const newEvent: Event = {
         id: `event-${Date.now()}`,
@@ -178,6 +202,8 @@ function App() {
         time: eventData.time,
         assignedTo: eventData.assignedTo,
         allDay: eventData.allDay,
+        recurrence: eventData.recurrence,
+        recurrenceEndDate: eventData.recurrenceEndDate,
         createdAt: Date.now(),
       }
       setEvents((current) => [...(current || []), newEvent])
@@ -255,7 +281,14 @@ function App() {
   }
 
   const handleDeleteEvent = (eventId: string) => {
-    const event = safeEvents.find((e) => e.id === eventId)
+    const event = expandedEvents.find((e) => e.id === eventId)
+    const isRecurringInstance = event?.parentEventId
+    
+    if (isRecurringInstance) {
+      toast.error('Cannot delete recurring event instances. Edit the original event instead.')
+      return
+    }
+    
     setEvents((current) => (current || []).filter((e) => e.id !== eventId))
     toast.success(`${event?.title} deleted`)
   }
@@ -271,7 +304,19 @@ function App() {
   }
 
   const handleEditEvent = (event: Event) => {
-    setEditingEvent(event)
+    const isRecurringInstance = event.parentEventId
+    
+    if (isRecurringInstance) {
+      const parentEvent = safeEvents.find(e => e.id === event.parentEventId)
+      if (parentEvent) {
+        setEditingEvent(parentEvent)
+      } else {
+        setEditingEvent(event)
+      }
+    } else {
+      setEditingEvent(event)
+    }
+    
     setEventDialogOpen(true)
   }
 
@@ -353,7 +398,7 @@ function App() {
             <ScheduleView 
               members={safeMembers} 
               chores={safeChores}
-              events={safeEvents}
+              events={expandedEvents}
               onAddEvent={handleAddEvent}
               onEditEvent={handleEditEvent}
               onDeleteEvent={handleDeleteEvent}
