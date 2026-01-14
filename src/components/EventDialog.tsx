@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Event, EventCategory, FamilyMember, RecurrenceType } from '@/lib/types'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Event, EventCategory, FamilyMember, RecurrenceType, DayOfWeek } from '@/lib/types'
 
 interface EventDialogProps {
   event?: Event
@@ -26,6 +27,17 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
   const [allDay, setAllDay] = useState(false)
   const [recurrence, setRecurrence] = useState<RecurrenceType>('none')
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
+  const [recurringDays, setRecurringDays] = useState<DayOfWeek[]>([])
+
+  const weekDays: { value: DayOfWeek; label: string }[] = [
+    { value: 'monday', label: 'Mon' },
+    { value: 'tuesday', label: 'Tue' },
+    { value: 'wednesday', label: 'Wed' },
+    { value: 'thursday', label: 'Thu' },
+    { value: 'friday', label: 'Fri' },
+    { value: 'saturday', label: 'Sat' },
+    { value: 'sunday', label: 'Sun' },
+  ]
 
   useEffect(() => {
     if (event) {
@@ -39,6 +51,7 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       setAllDay(event.allDay)
       setRecurrence(event.recurrence)
       setRecurrenceEndDate(event.recurrenceEndDate ? new Date(event.recurrenceEndDate).toISOString().split('T')[0] : '')
+      setRecurringDays(event.recurringDays || [])
     } else {
       setTitle('')
       setDescription('')
@@ -49,8 +62,17 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       setAllDay(false)
       setRecurrence('none')
       setRecurrenceEndDate('')
+      setRecurringDays([])
     }
   }, [event, open])
+
+  const handleDayToggle = (day: DayOfWeek) => {
+    setRecurringDays((current) =>
+      current.includes(day)
+        ? current.filter((d) => d !== day)
+        : [...current, day]
+    )
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,6 +93,7 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
       allDay,
       recurrence,
       recurrenceEndDate: endDateObj?.getTime(),
+      recurringDays: recurrence === 'weekly' && recurringDays.length > 0 ? recurringDays : undefined,
       parentEventId: event?.parentEventId,
     })
     
@@ -203,6 +226,30 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
               </SelectContent>
             </Select>
           </div>
+
+          {recurrence === 'weekly' && (
+            <div className="space-y-3">
+              <Label>Repeat On</Label>
+              <div className="flex flex-wrap gap-2">
+                {weekDays.map((day) => (
+                  <div key={day.value} className="flex items-center">
+                    <Button
+                      type="button"
+                      variant={recurringDays.includes(day.value) ? "default" : "outline"}
+                      size="sm"
+                      className="w-14"
+                      onClick={() => handleDayToggle(day.value)}
+                    >
+                      {day.label}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Select which days of the week this event repeats
+              </p>
+            </div>
+          )}
 
           {recurrence !== 'none' && (
             <div className="space-y-2">

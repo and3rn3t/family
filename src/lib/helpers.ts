@@ -1,4 +1,4 @@
-import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType } from './types'
+import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType, DayOfWeek } from './types'
 
 export const getFrequencyLabel = (frequency: ChoreFrequency): string => {
   const labels: Record<ChoreFrequency, string> = {
@@ -187,6 +187,15 @@ export const finalizeWeeklyCompetition = (
   }
 }
 
+export const getDayOfWeekFromDate = (date: Date): DayOfWeek => {
+  const days: DayOfWeek[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  return days[date.getDay()]
+}
+
+export const getDateDayOfWeek = (date: Date): number => {
+  return date.getDay()
+}
+
 export const generateRecurringEventInstances = (
   baseEvent: Event,
   startDate: Date,
@@ -206,16 +215,28 @@ export const generateRecurringEventInstances = (
 
   while (currentDate <= maxEndDate) {
     if (currentDate >= startDate) {
-      instances.push({
-        ...baseEvent,
-        id: `${baseEvent.id}-${currentDate.getTime()}`,
-        date: currentDate.getTime(),
-        parentEventId: baseEvent.id,
-      })
+      const currentDayOfWeek = getDayOfWeekFromDate(currentDate)
+      
+      const shouldInclude = baseEvent.recurrence === 'weekly' && baseEvent.recurringDays && baseEvent.recurringDays.length > 0
+        ? baseEvent.recurringDays.includes(currentDayOfWeek)
+        : true
+
+      if (shouldInclude) {
+        instances.push({
+          ...baseEvent,
+          id: `${baseEvent.id}-${currentDate.getTime()}`,
+          date: currentDate.getTime(),
+          parentEventId: baseEvent.id,
+        })
+      }
     }
 
     if (baseEvent.recurrence === 'weekly') {
-      currentDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+      if (baseEvent.recurringDays && baseEvent.recurringDays.length > 0) {
+        currentDate = new Date(currentDate.getTime() + 1 * 24 * 60 * 60 * 1000)
+      } else {
+        currentDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+      }
     } else if (baseEvent.recurrence === 'monthly') {
       currentDate = new Date(
         currentDate.getFullYear(),

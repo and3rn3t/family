@@ -58,6 +58,7 @@ export interface Achievement {
 
 export type EventCategory = 'sports' | 'school' | 'medical' | 'social' | 'other'
 export type RecurrenceType = 'none' | 'weekly' | 'monthly'
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Event {
   id: string
@@ -71,6 +72,7 @@ export interface Event {
   createdAt: number
   recurrence: RecurrenceType
   recurrenceEndDate?: number
+  recurringDays?: DayOfWeek[]
   parentEventId?: string
 }
 

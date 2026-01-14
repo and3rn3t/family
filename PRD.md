@@ -62,11 +62,11 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Schedule accurately reflects chore frequencies and events, updates in real-time, shows current day prominently, displays event categories with visual distinction, and produces clean print output and exportable data files
 
 ### Event Management
-- **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, optional family member assignment, and recurrence settings (none, weekly, monthly)
-- **Purpose**: Track family activities beyond chores to maintain a complete family schedule in one place, with support for repeating events
+- **Functionality**: Create, edit, and delete non-chore events with title, description, category (sports, school, medical, social, other), date, optional time, optional family member assignment, and recurrence settings (none, weekly with specific days, monthly)
+- **Purpose**: Track family activities beyond chores to maintain a complete family schedule in one place, with support for repeating events including flexible weekly schedules
 - **Trigger**: Click "Add Event" button in schedule view or edit existing events
-- **Progression**: Click add → Enter event details → Select category → Choose date and time → Optionally assign to member → Set recurrence (none/weekly/monthly) → Optionally set end date for recurring events → Save → Event appears in schedule with all future instances generated
-- **Success criteria**: Events persist across sessions, recurring events automatically generate future instances, display correctly in schedule view with category-based styling and recurrence indicators, can be edited (updates base event) and deleted (only non-recurring or base recurring events), and integrate seamlessly with chores
+- **Progression**: Click add → Enter event details → Select category → Choose date and time → Optionally assign to member → Set recurrence (none/weekly/monthly) → If weekly, select which days of the week (Mon-Sun) → Optionally set end date for recurring events → Save → Event appears in schedule with all future instances generated according to selected days
+- **Success criteria**: Events persist across sessions, recurring events automatically generate future instances, weekly events only appear on selected days, display correctly in schedule view with category-based styling and recurrence indicators, can be edited (updates base event) and deleted (only non-recurring or base recurring events), and integrate seamlessly with chores
 
 ### Progress Dashboard
 - **Functionality**: Show completion statistics per family member, overall household progress, star leaderboard, and current monthly competition standings
@@ -98,9 +98,11 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Month Transition** - Automatically finalize previous month's competition, declare winner, reset monthly star counts, and start new competition
 - **No Competition Activity** - Handle months where no stars were earned gracefully
 - **Achievement Spam** - If multiple achievements unlock simultaneously, show primary notification and toast for additional ones
-- **Recurring Event Editing** - Editing a recurring event updates the base event pattern; editing a specific instance creates a new one-time event
+- **Recurring Event Editing** - Editing a recurring event updates the base event pattern including selected days; editing a specific instance creates a new one-time event
 - **Recurring Event Deletion** - Only base recurring events can be deleted (removes entire series); generated instances cannot be individually deleted
 - **Infinite Recurrence** - Events without end dates generate instances up to 3 months in advance for display
+- **Weekly Recurrence Without Days** - If weekly recurrence is selected but no days are chosen, event repeats every 7 days from the start date
+- **Weekly Recurrence With Days** - If specific days are selected, events only appear on those days of the week within the recurrence period
 - **Print Empty Schedule** - Printing with no chores or events shows clean layout with "Nothing scheduled" message
 - **Export Format Compatibility** - CSV files use standard format compatible with Excel/Google Sheets; JSON uses structured format for programmatic access
 

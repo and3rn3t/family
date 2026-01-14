@@ -180,6 +180,7 @@ function App() {
           allDay: eventData.allDay,
           recurrence: eventData.recurrence,
           recurrenceEndDate: eventData.recurrenceEndDate,
+          recurringDays: eventData.recurringDays,
           createdAt: Date.now(),
         }
         setEvents((current) => [...(current || []), newEvent])
@@ -206,6 +207,7 @@ function App() {
         allDay: eventData.allDay,
         recurrence: eventData.recurrence,
         recurrenceEndDate: eventData.recurrenceEndDate,
+        recurringDays: eventData.recurringDays,
         createdAt: Date.now(),
       }
       setEvents((current) => [...(current || []), newEvent])
