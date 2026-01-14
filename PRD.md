@@ -34,11 +34,25 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Completion states persist, visual feedback is clear, stars are awarded correctly, and automatic resets work correctly
 
 ### Reward Points System
-- **Functionality**: Earn stars when completing chores based on frequency (Daily: 1⭐, Weekly: 3⭐, Bi-weekly: 5⭐, Monthly: 10⭐)
-- **Purpose**: Gamify household tasks and provide tangible motivation for completing chores
+- **Functionality**: Earn stars when completing chores based on frequency (Daily: 1⭐, Weekly: 3⭐, Bi-weekly: 5⭐, Monthly: 10⭐); stars are tracked both overall and monthly
+- **Purpose**: Gamify household tasks, provide tangible motivation for completing chores, and fuel monthly competitions
 - **Trigger**: Completing any chore automatically awards stars
-- **Progression**: Complete chore → Stars calculated based on frequency → Member's total updated → Leaderboard refreshes → Success toast shows stars earned
-- **Success criteria**: Stars are calculated correctly, persist across sessions, display on member cards, and show in leaderboard rankings
+- **Progression**: Complete chore → Stars calculated based on frequency → Member's total and monthly totals updated → Leaderboard refreshes → Success toast shows stars earned → Check for new achievements
+- **Success criteria**: Stars are calculated correctly, persist across sessions, display on member cards, show in leaderboard rankings, and monthly totals track separately
+
+### Monthly Competition System
+- **Functionality**: Automatic monthly star competition that tracks each member's stars for the current month, displays live rankings, and crowns a winner at month's end
+- **Purpose**: Create friendly competition, encourage consistent participation, and celebrate monthly achievements
+- **Trigger**: Automatically starts each month; members earn stars toward the current competition
+- **Progression**: Month begins → Members earn stars → Competition view shows live rankings → Month ends → Winner declared → Competition archived → New month begins
+- **Success criteria**: Monthly stars track accurately, competitions finalize automatically, past winners are displayed, and notifications celebrate monthly winners
+
+### Achievement System
+- **Functionality**: Unlock special achievements based on milestones (total stars, monthly performance, streaks, competition wins) with different rarity levels (common, rare, epic, legendary)
+- **Purpose**: Provide long-term goals, recognize diverse accomplishments, and add depth to the gamification
+- **Trigger**: Automatically checked when members earn stars, complete chores, or win competitions
+- **Progression**: Earn stars/complete actions → System checks achievement conditions → New achievements unlock → Animated celebration displays → Achievement added to member profile → Can view all achievements per member
+- **Success criteria**: Achievements unlock correctly, animations display properly, achievement progress persists, and members can view their earned achievements
 
 ### Schedule/Calendar View
 - **Functionality**: Display weekly schedule showing which chores are due for each family member
@@ -48,11 +62,18 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Schedule accurately reflects chore frequencies, updates in real-time, and shows current day prominently
 
 ### Progress Dashboard
-- **Functionality**: Show completion statistics per family member, overall household progress, and star leaderboard
-- **Purpose**: Motivate through visible achievement, fair distribution visualization, and friendly competition
+- **Functionality**: Show completion statistics per family member, overall household progress, star leaderboard, and current monthly competition standings
+- **Purpose**: Motivate through visible achievement, fair distribution visualization, friendly competition, and real-time monthly rankings
 - **Trigger**: View main dashboard (default view)
-- **Progression**: App loads → Dashboard displays → Shows leaderboard with star rankings → Shows completion percentages → Highlights achievements
-- **Success criteria**: Statistics are accurate, update immediately upon completion, leaderboard sorts correctly by stars, and displays engagingly
+- **Progression**: App loads → Dashboard displays → Shows leaderboard with star rankings → Shows completion percentages → Highlights achievements → Displays monthly competition status
+- **Success criteria**: Statistics are accurate, update immediately upon completion, leaderboard sorts correctly by stars, displays engagingly, and monthly standings reflect current month
+
+### Competition View
+- **Functionality**: Dedicated view showing current month's live rankings, days remaining, past competition winners, and historical performance
+- **Purpose**: Focus attention on monthly competition, celebrate past winners, and encourage ongoing participation
+- **Trigger**: Navigate to Competition tab
+- **Progression**: Open tab → View current month rankings → See countdown timer → Review past competition winners → Identify top performers across multiple months
+- **Success criteria**: Current rankings update in real-time, past competitions display accurately with winners, and interface is visually engaging
 
 ## Edge Case Handling
 
@@ -62,6 +83,9 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Overdue Chores** - Highlight overdue items with distinct visual treatment without being punitive
 - **Device Offline** - All data persists locally; no cloud dependency required
 - **Screen Timeout/Kiosk Reset** - App state persists through page refreshes
+- **Month Transition** - Automatically finalize previous month's competition, declare winner, reset monthly star counts, and start new competition
+- **No Competition Activity** - Handle months where no stars were earned gracefully
+- **Achievement Spam** - If multiple achievements unlock simultaneously, show primary notification and toast for additional ones
 
 ## Design Direction
 
@@ -95,17 +119,17 @@ Typography should feel friendly and approachable while maintaining excellent rea
 
 ## Animations
 
-Animations should celebrate completion actions and provide clear feedback for interactions, making the experience feel responsive and rewarding. Key moments: chore completion (confetti-style celebration), card interactions (gentle lift and scale), view transitions (smooth slide), and progress updates (animated counters).
+Animations should celebrate completion actions and provide clear feedback for interactions, making the experience feel responsive and rewarding. Key moments: chore completion (confetti-style celebration), achievement unlocks (dramatic reveal with particles), card interactions (gentle lift and scale), view transitions (smooth slide), monthly competition updates (animated counters and rankings), and progress updates (animated counters).
 
 ## Component Selection
 
 - **Components**:
   - **Card**: Chore items with hover states and completion actions
-  - **Badge**: Status indicators (Complete, Overdue, Pending)
+  - **Badge**: Status indicators (Complete, Overdue, Pending), achievement rarities, competition status
   - **Avatar**: Family member representation with initials and color
   - **Progress**: Visual completion bars for family members
-  - **Tabs**: Navigation between Dashboard, Schedule, and Management views
-  - **Dialog**: Adding/editing family members and chores
+  - **Tabs**: Navigation between Dashboard, Competition, Schedule, and Management views
+  - **Dialog**: Adding/editing family members and chores, viewing member achievements
   - **Button**: Primary actions with distinct visual hierarchy
   - **Form/Input/Label**: Chore and family member creation forms
   - **Checkbox**: Chore completion toggles
@@ -114,28 +138,41 @@ Animations should celebrate completion actions and provide clear feedback for in
 
 - **Customizations**:
   - **Chore Cards**: Custom component with completion checkbox, assigned member avatar, frequency badge, star value indicator, and description
-  - **Family Member Cards**: Custom stat cards showing member name, avatar, total stars earned, completion percentage, and active chores count
+  - **Family Member Cards**: Custom stat cards showing member name, avatar, total stars earned, monthly stars, completion percentage, active chores count, and achievement count with click-to-view
   - **Leaderboard**: Custom ranking component showing family members sorted by stars with trophy/medal icons for top 3
+  - **Competition Rankings**: Enhanced ranking cards with position indicators, animated transitions, special styling for podium positions (gold/silver/bronze)
+  - **Achievement Grid**: Custom grid showing all achievements with unlock status, rarity indicators, icons, and progress states
+  - **Achievement Unlock Animation**: Full-screen celebration overlay with rarity-based colors, particle effects, and auto-dismiss
+  - **Monthly Competition Card**: Large featured card showing current month standings, countdown, and live rankings
+  - **Past Competition Cards**: Compact cards showing historical winners and final standings
   - **Weekly Schedule Grid**: Custom calendar-style layout showing chores organized by day and person
   - **Celebration Component**: Custom animation overlay for completed chores using framer-motion
 
 - **States**:
   - **Buttons**: Resting (solid primary), Hover (slightly darker with subtle lift), Active (pressed down), Disabled (muted with reduced opacity)
   - **Chore Cards**: Pending (normal), Hover (elevated shadow), Overdue (yellow accent border), Complete (muted with checkmark and lavender tint)
+  - **Achievement Cards**: Locked (grayscale, muted), Unlocked (full color with rarity-based accent)
+  - **Competition Rankings**: Active month (highlighted border and background), Past competitions (standard card style)
   - **Input Fields**: Empty (subtle border), Focus (primary color border with glow), Filled (darker border), Error (destructive color border)
 
 - **Icon Selection**:
   - **Plus** - Add new chore/member
   - **Check** - Mark complete
-  - **Calendar** - Schedule view
+  - **Calendar/CalendarBlank** - Schedule view, monthly tracking
   - **ChartBar** - Dashboard/stats
   - **Users** - Family member management
+  - **Trophy** - Competition, leaderboard, winners, achievements
   - **Trash** - Delete actions
   - **PencilSimple** - Edit actions
   - **ClockCounterClockwise** - Recurring/frequency indicator
   - **Star** - Achievement/reward points display
-  - **Trophy** - Leaderboard and top performer
   - **Medal** - Second and third place rankings
+  - **Fire** - Active competition, streaks
+  - **Lightning** - High achievement, power performance
+  - **Sparkle** - Achievement unlock, special moments
+  - **Rocket** - Overachiever achievements
+  - **TrendUp** - Progress, comeback achievements
+  - **CheckCircle** - Completion achievements
 
 - **Spacing**:
   - Container padding: `p-6` (24px) on mobile, `p-8` (32px) on tablet+
@@ -146,8 +183,11 @@ Animations should celebrate completion actions and provide clear feedback for in
 
 - **Mobile**:
   - Single column layout for all cards on mobile (<768px)
-  - Bottom tab navigation instead of side tabs
+  - Four-column tab navigation adapting to icons-only on smallest screens
   - Larger touch targets (min 48px) for all interactive elements
   - Condensed header with hamburger menu for management
   - Horizontal scroll for weekly schedule view
+  - Horizontal scroll for competition rankings on mobile
   - Full-screen dialogs on mobile instead of centered modals
+  - Achievement grid collapses to single column
+  - Compact achievement cards with essential info only

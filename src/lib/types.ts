@@ -3,6 +3,8 @@ export interface FamilyMember {
   name: string
   color: string
   stars?: number
+  achievements?: string[]
+  monthlyStars?: Record<string, number>
 }
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
@@ -21,6 +23,23 @@ export interface ChoreCompletion {
   choreId: string
   completedAt: number
   completedBy: string
+}
+
+export interface MonthlyCompetition {
+  month: string
+  year: number
+  winner?: string
+  rankings: { memberId: string; stars: number }[]
+  completedAt?: number
+}
+
+export interface Achievement {
+  id: string
+  title: string
+  description: string
+  icon: string
+  condition: (member: FamilyMember, chores: Chore[], competitions: MonthlyCompetition[]) => boolean
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
 }
 
 export const AVATAR_COLORS = [

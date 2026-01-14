@@ -1,4 +1,4 @@
-import { ChoreFrequency, Chore } from './types'
+import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition } from './types'
 
 export const getFrequencyLabel = (frequency: ChoreFrequency): string => {
   const labels: Record<ChoreFrequency, string> = {
@@ -58,4 +58,55 @@ export const getStarsForChore = (frequency: ChoreFrequency): number => {
     monthly: 10,
   }
   return stars[frequency]
+}
+
+export const getCurrentMonthKey = (): string => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+export const getMonthName = (monthKey: string): string => {
+  const [year, month] = monthKey.split('-')
+  const date = new Date(parseInt(year), parseInt(month) - 1)
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+export const getMemberMonthlyStars = (member: FamilyMember, monthKey: string): number => {
+  return member.monthlyStars?.[monthKey] || 0
+}
+
+export const isEndOfMonth = (): boolean => {
+  const now = new Date()
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  return now.getDate() === lastDayOfMonth.getDate()
+}
+
+export const getDaysUntilMonthEnd = (): number => {
+  const now = new Date()
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  const diff = lastDayOfMonth.getTime() - now.getTime()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+}
+
+export const finalizeMonthlyCompetition = (
+  members: FamilyMember[],
+  monthKey: string
+): MonthlyCompetition => {
+  const rankings = members
+    .map((member) => ({
+      memberId: member.id,
+      stars: getMemberMonthlyStars(member, monthKey),
+    }))
+    .sort((a, b) => b.stars - a.stars)
+
+  const winner = rankings.length > 0 && rankings[0].stars > 0 ? rankings[0].memberId : undefined
+  const [year, month] = monthKey.split('-')
+
+  return {
+    month: monthKey,
+    year: parseInt(year),
+    winner,
+    rankings,
+    completedAt: Date.now(),
+  }
 }

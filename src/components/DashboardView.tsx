@@ -15,6 +15,7 @@ interface DashboardViewProps {
   onEditMember: (member: FamilyMember) => void
   onDeleteMember: (memberId: string) => void
   onAddChore: () => void
+  onViewAchievements?: (member: FamilyMember) => void
 }
 
 export function DashboardView({
@@ -26,6 +27,7 @@ export function DashboardView({
   onEditMember,
   onDeleteMember,
   onAddChore,
+  onViewAchievements,
 }: DashboardViewProps) {
   const totalChores = chores.length
   const completedChores = chores.filter(isChoreComplete).length
@@ -71,6 +73,7 @@ export function DashboardView({
               chores={memberChores}
               onEdit={onEditMember}
               onDelete={onDeleteMember}
+              onViewAchievements={onViewAchievements}
             />
           )
         })}

@@ -1,30 +1,69 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { ChartBar, Calendar, Users } from '@phosphor-icons/react'
-import { FamilyMember, Chore } from '@/lib/types'
-import { getStarsForChore } from '@/lib/helpers'
+import { ChartBar, Calendar, Users, Trophy } from '@phosphor-icons/react'
+import { FamilyMember, Chore, MonthlyCompetition, Achievement } from '@/lib/types'
+import { 
+  getStarsForChore, 
+  getCurrentMonthKey, 
+  getMemberMonthlyStars,
+  finalizeMonthlyCompetition 
+} from '@/lib/helpers'
+import { checkNewAchievements } from '@/lib/achievements'
 import { DashboardView } from '@/components/DashboardView'
 import { ScheduleView } from '@/components/ScheduleView'
 import { ManagementView } from '@/components/ManagementView'
+import { CompetitionView } from '@/components/CompetitionView'
 import { MemberDialog } from '@/components/MemberDialog'
 import { ChoreDialog } from '@/components/ChoreDialog'
+import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
 import { Celebration } from '@/components/Celebration'
+import { AchievementUnlock } from '@/components/AchievementUnlock'
 
 function App() {
   const [members, setMembers] = useKV<FamilyMember[]>('family-members', [])
   const [chores, setChores] = useKV<Chore[]>('chores', [])
+  const [competitions, setCompetitions] = useKV<MonthlyCompetition[]>('monthly-competitions', [])
+  const [lastMonthCheck, setLastMonthCheck] = useKV<string>('last-month-check', '')
   
   const [memberDialogOpen, setMemberDialogOpen] = useState(false)
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
+  const [achievementsDialogOpen, setAchievementsDialogOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<FamilyMember | undefined>()
+  const [viewingMemberAchievements, setViewingMemberAchievements] = useState<FamilyMember | null>(null)
   const [editingChore, setEditingChore] = useState<Chore | undefined>()
   const [showCelebration, setShowCelebration] = useState(false)
+  const [unlockedAchievement, setUnlockedAchievement] = useState<Achievement | null>(null)
 
   const safeMembers = members || []
   const safeChores = chores || []
+  const safeCompetitions = competitions || []
+
+  useEffect(() => {
+    const currentMonthKey = getCurrentMonthKey()
+    
+    if (lastMonthCheck && lastMonthCheck !== currentMonthKey) {
+      const competition = finalizeMonthlyCompetition(safeMembers, lastMonthCheck)
+      
+      setCompetitions((current) => [...(current || []), competition])
+      
+      if (competition.winner) {
+        const winner = safeMembers.find((m) => m.id === competition.winner)
+        if (winner) {
+          toast.success(`🏆 ${winner.name} won last month's competition!`, {
+            description: `Congratulations on earning the most stars!`,
+            duration: 5000,
+          })
+        }
+      }
+    }
+    
+    if (lastMonthCheck !== currentMonthKey) {
+      setLastMonthCheck(currentMonthKey)
+    }
+  }, [lastMonthCheck, safeMembers, setCompetitions, setLastMonthCheck])
 
   const handleSaveMember = (memberData: Omit<FamilyMember, 'id'> & { id?: string }) => {
     if (memberData.id) {
@@ -38,6 +77,8 @@ function App() {
         name: memberData.name,
         color: memberData.color,
         stars: 0,
+        achievements: [],
+        monthlyStars: {},
       }
       setMembers((current) => [...(current || []), newMember])
       toast.success(`${memberData.name} added to the family!`)
@@ -85,6 +126,7 @@ function App() {
     if (!chore) return
 
     const starsEarned = getStarsForChore(chore.frequency)
+    const currentMonthKey = getCurrentMonthKey()
     
     setChores((current) =>
       (current || []).map((c) =>
@@ -95,11 +137,37 @@ function App() {
     )
 
     setMembers((current) =>
-      (current || []).map((m) =>
-        m.id === chore.assignedTo
-          ? { ...m, stars: (m.stars || 0) + starsEarned }
-          : m
-      )
+      (current || []).map((m) => {
+        if (m.id === chore.assignedTo) {
+          const newTotalStars = (m.stars || 0) + starsEarned
+          const currentMonthStars = getMemberMonthlyStars(m, currentMonthKey) + starsEarned
+          const updatedMember = {
+            ...m,
+            stars: newTotalStars,
+            monthlyStars: {
+              ...(m.monthlyStars || {}),
+              [currentMonthKey]: currentMonthStars,
+            },
+          }
+
+          const newAchievements = checkNewAchievements(updatedMember, safeChores, safeCompetitions)
+          
+          if (newAchievements.length > 0) {
+            updatedMember.achievements = [...(m.achievements || []), ...newAchievements.map(a => a.id)]
+            
+            setTimeout(() => {
+              setUnlockedAchievement(newAchievements[0])
+            }, 1200)
+
+            if (newAchievements.length > 1) {
+              toast.success(`🎉 Unlocked ${newAchievements.length} achievements!`)
+            }
+          }
+
+          return updatedMember
+        }
+        return m
+      })
     )
 
     setShowCelebration(true)
@@ -135,6 +203,11 @@ function App() {
     setChoreDialogOpen(true)
   }
 
+  const handleViewAchievements = (member: FamilyMember) => {
+    setViewingMemberAchievements(member)
+    setAchievementsDialogOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -148,10 +221,14 @@ function App() {
         </header>
 
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <ChartBar className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger value="competition" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Competition</span>
             </TabsTrigger>
             <TabsTrigger value="schedule" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -173,7 +250,12 @@ function App() {
               onEditMember={handleEditMember}
               onDeleteMember={handleDeleteMember}
               onAddChore={handleAddChore}
+              onViewAchievements={handleViewAchievements}
             />
+          </TabsContent>
+
+          <TabsContent value="competition" className="space-y-6">
+            <CompetitionView members={safeMembers} competitions={safeCompetitions} />
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-6">
@@ -213,7 +295,20 @@ function App() {
         onSave={handleSaveChore}
       />
 
+      <MemberAchievementsDialog
+        member={viewingMemberAchievements}
+        open={achievementsDialogOpen}
+        onOpenChange={(open) => {
+          setAchievementsDialogOpen(open)
+          if (!open) setViewingMemberAchievements(null)
+        }}
+      />
+
       <Celebration show={showCelebration} />
+      <AchievementUnlock 
+        achievement={unlockedAchievement} 
+        onComplete={() => setUnlockedAchievement(null)} 
+      />
       <Toaster position="top-center" richColors />
     </div>
   )
