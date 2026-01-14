@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MemberAvatar } from './MemberAvatar'
 import { Chore, FamilyMember } from '@/lib/types'
-import { getFrequencyLabel, isChoreOverdue, isChoreComplete } from '@/lib/helpers'
-import { Trash, PencilSimple } from '@phosphor-icons/react'
+import { getFrequencyLabel, isChoreOverdue, isChoreComplete, getStarsForChore } from '@/lib/helpers'
+import { Trash, PencilSimple, Star } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +20,7 @@ interface ChoreCardProps {
 export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: ChoreCardProps) {
   const isComplete = isChoreComplete(chore)
   const isOverdue = isChoreOverdue(chore)
+  const stars = getStarsForChore(chore.frequency)
 
   return (
     <motion.div
@@ -57,6 +58,10 @@ export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: Chore
               </label>
               
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-2 py-1 bg-secondary/20 rounded-md">
+                  <Star weight="fill" className="h-4 w-4 text-secondary" />
+                  <span className="text-sm font-semibold">{stars}</span>
+                </div>
                 {member && (
                   <MemberAvatar 
                     name={member.name} 

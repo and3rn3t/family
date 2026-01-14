@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Chore, ChoreFrequency, FamilyMember } from '@/lib/types'
-import { getFrequencyLabel } from '@/lib/helpers'
+import { getFrequencyLabel, getStarsForChore } from '@/lib/helpers'
+import { Star } from '@phosphor-icons/react'
 
 interface ChoreDialogProps {
   chore?: Chore
@@ -99,11 +100,20 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               <SelectContent>
                 {FREQUENCIES.map((freq) => (
                   <SelectItem key={freq} value={freq}>
-                    {getFrequencyLabel(freq)}
+                    <div className="flex items-center justify-between w-full gap-4">
+                      <span>{getFrequencyLabel(freq)}</span>
+                      <div className="flex items-center gap-1 text-secondary">
+                        <Star weight="fill" className="h-3 w-3" />
+                        <span className="text-xs font-semibold">{getStarsForChore(freq)}</span>
+                      </div>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Earn <Star weight="fill" className="inline h-3 w-3 text-secondary" /> {getStarsForChore(frequency)} stars when completed
+            </p>
           </div>
           
           <div className="space-y-2">

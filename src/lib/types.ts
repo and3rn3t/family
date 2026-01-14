@@ -2,6 +2,7 @@ export interface FamilyMember {
   id: string
   name: string
   color: string
+  stars?: number
 }
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'

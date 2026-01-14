@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { ChartBar, Calendar, Users } from '@phosphor-icons/react'
 import { FamilyMember, Chore } from '@/lib/types'
+import { getStarsForChore } from '@/lib/helpers'
 import { DashboardView } from '@/components/DashboardView'
 import { ScheduleView } from '@/components/ScheduleView'
 import { ManagementView } from '@/components/ManagementView'
@@ -36,6 +37,7 @@ function App() {
         id: `member-${Date.now()}`,
         name: memberData.name,
         color: memberData.color,
+        stars: 0,
       }
       setMembers((current) => [...(current || []), newMember])
       toast.success(`${memberData.name} added to the family!`)
@@ -79,6 +81,11 @@ function App() {
   }
 
   const handleCompleteChore = (choreId: string) => {
+    const chore = safeChores.find((c) => c.id === choreId)
+    if (!chore) return
+
+    const starsEarned = getStarsForChore(chore.frequency)
+    
     setChores((current) =>
       (current || []).map((c) =>
         c.id === choreId
@@ -86,9 +93,20 @@ function App() {
           : c
       )
     )
+
+    setMembers((current) =>
+      (current || []).map((m) =>
+        m.id === chore.assignedTo
+          ? { ...m, stars: (m.stars || 0) + starsEarned }
+          : m
+      )
+    )
+
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 1000)
-    toast.success('Chore completed! Great job! 🎉')
+    toast.success(`Chore completed! +${starsEarned} ⭐`, {
+      description: `Great job! Keep up the amazing work!`,
+    })
   }
 
   const handleDeleteChore = (choreId: string) => {

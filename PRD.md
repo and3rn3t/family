@@ -27,11 +27,18 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Chores are created, assigned correctly, display with all details, and can be edited or deleted
 
 ### Chore Completion Tracking
-- **Functionality**: Mark chores as complete with visual feedback and automatic reset based on frequency
-- **Purpose**: Track household progress and maintain accountability
+- **Functionality**: Mark chores as complete with visual feedback, automatic reset based on frequency, and star rewards
+- **Purpose**: Track household progress, maintain accountability, and motivate through achievement rewards
 - **Trigger**: Tap/click on a chore card or completion checkbox
-- **Progression**: Select chore → Mark complete → Visual celebration → Chore updates status → Auto-reset after frequency period
-- **Success criteria**: Completion states persist, visual feedback is clear, and automatic resets work correctly
+- **Progression**: Select chore → Mark complete → Visual celebration → Stars awarded → Chore updates status → Auto-reset after frequency period
+- **Success criteria**: Completion states persist, visual feedback is clear, stars are awarded correctly, and automatic resets work correctly
+
+### Reward Points System
+- **Functionality**: Earn stars when completing chores based on frequency (Daily: 1⭐, Weekly: 3⭐, Bi-weekly: 5⭐, Monthly: 10⭐)
+- **Purpose**: Gamify household tasks and provide tangible motivation for completing chores
+- **Trigger**: Completing any chore automatically awards stars
+- **Progression**: Complete chore → Stars calculated based on frequency → Member's total updated → Leaderboard refreshes → Success toast shows stars earned
+- **Success criteria**: Stars are calculated correctly, persist across sessions, display on member cards, and show in leaderboard rankings
 
 ### Schedule/Calendar View
 - **Functionality**: Display weekly schedule showing which chores are due for each family member
@@ -41,11 +48,11 @@ This app manages multiple family members, their assigned chores, schedules, and 
 - **Success criteria**: Schedule accurately reflects chore frequencies, updates in real-time, and shows current day prominently
 
 ### Progress Dashboard
-- **Functionality**: Show completion statistics per family member and overall household progress
-- **Purpose**: Motivate through visible achievement and fair distribution visualization
+- **Functionality**: Show completion statistics per family member, overall household progress, and star leaderboard
+- **Purpose**: Motivate through visible achievement, fair distribution visualization, and friendly competition
 - **Trigger**: View main dashboard (default view)
-- **Progression**: App loads → Dashboard displays → Shows completion percentages → Highlights top contributors
-- **Success criteria**: Statistics are accurate, update immediately upon completion, and display engagingly
+- **Progression**: App loads → Dashboard displays → Shows leaderboard with star rankings → Shows completion percentages → Highlights achievements
+- **Success criteria**: Statistics are accurate, update immediately upon completion, leaderboard sorts correctly by stars, and displays engagingly
 
 ## Edge Case Handling
 
@@ -106,8 +113,9 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Calendar**: Schedule view component
 
 - **Customizations**:
-  - **Chore Cards**: Custom component with completion checkbox, assigned member avatar, frequency badge, and description
-  - **Family Member Cards**: Custom stat cards showing member name, avatar, completion percentage, and active chores count
+  - **Chore Cards**: Custom component with completion checkbox, assigned member avatar, frequency badge, star value indicator, and description
+  - **Family Member Cards**: Custom stat cards showing member name, avatar, total stars earned, completion percentage, and active chores count
+  - **Leaderboard**: Custom ranking component showing family members sorted by stars with trophy/medal icons for top 3
   - **Weekly Schedule Grid**: Custom calendar-style layout showing chores organized by day and person
   - **Celebration Component**: Custom animation overlay for completed chores using framer-motion
 
@@ -125,7 +133,9 @@ Animations should celebrate completion actions and provide clear feedback for in
   - **Trash** - Delete actions
   - **PencilSimple** - Edit actions
   - **ClockCounterClockwise** - Recurring/frequency indicator
-  - **Star** - Achievement/top performer
+  - **Star** - Achievement/reward points display
+  - **Trophy** - Leaderboard and top performer
+  - **Medal** - Second and third place rankings
 
 - **Spacing**:
   - Container padding: `p-6` (24px) on mobile, `p-8` (32px) on tablet+

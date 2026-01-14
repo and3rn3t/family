@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { MemberAvatar } from './MemberAvatar'
 import { FamilyMember, Chore } from '@/lib/types'
 import { isChoreComplete } from '@/lib/helpers'
-import { PencilSimple, Trash } from '@phosphor-icons/react'
+import { PencilSimple, Trash, Star } from '@phosphor-icons/react'
 
 interface MemberCardProps {
   member: FamilyMember
@@ -49,6 +49,12 @@ export function MemberCard({ member, chores, onEdit, onDelete }: MemberCardProps
             <Trash className="h-4 w-4" />
           </Button>
         </div>
+      </div>
+
+      <div className="mb-4 flex items-center justify-center py-3 px-4 bg-accent/50 rounded-lg">
+        <Star weight="fill" className="h-6 w-6 text-secondary mr-2" />
+        <span className="font-heading text-2xl font-bold">{member.stars || 0}</span>
+        <span className="text-sm text-muted-foreground ml-2">stars</span>
       </div>
       
       <div className="space-y-2">

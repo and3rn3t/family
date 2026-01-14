@@ -1,6 +1,7 @@
 import { FamilyMember, Chore } from '@/lib/types'
 import { MemberCard } from './MemberCard'
 import { ChoreCard } from './ChoreCard'
+import { Leaderboard } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Plus } from '@phosphor-icons/react'
 import { isChoreComplete } from '@/lib/helpers'
@@ -57,6 +58,8 @@ export function DashboardView({
           Add Chore
         </Button>
       </div>
+
+      <Leaderboard members={members} />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {members.map((member) => {

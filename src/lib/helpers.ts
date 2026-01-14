@@ -49,3 +49,13 @@ export const getInitials = (name: string): string => {
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
+
+export const getStarsForChore = (frequency: ChoreFrequency): number => {
+  const stars: Record<ChoreFrequency, number> = {
+    daily: 1,
+    weekly: 3,
+    biweekly: 5,
+    monthly: 10,
+  }
+  return stars[frequency]
+}
