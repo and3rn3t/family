@@ -1,0 +1,13 @@
+services:
+  family-organizer:
+    build: .
+    container_name: family-organizer
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - family-network
+
+networks:
+  family-network:
+    driver: bridge
