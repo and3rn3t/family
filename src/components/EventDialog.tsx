@@ -138,12 +138,12 @@ export function EventDialog({ event, members, open, onOpenChange, onSave }: Even
 
             <div className="space-y-2">
               <Label htmlFor="event-member">Assign To (Optional)</Label>
-              <Select value={assignedTo} onValueChange={setAssignedTo}>
+              <Select value={assignedTo || "everyone"} onValueChange={(value) => setAssignedTo(value === "everyone" ? "" : value)}>
                 <SelectTrigger id="event-member">
                   <SelectValue placeholder="Everyone" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Everyone</SelectItem>
+                  <SelectItem value="everyone">Everyone</SelectItem>
                   {members.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
                       {member.name}
