@@ -115,6 +115,7 @@ function App() {
         name: memberData.name,
         color: memberData.color,
         avatarUrl: memberData.avatarUrl,
+        avatarIcon: memberData.avatarIcon,
         stars: 0,
         achievements: [],
         monthlyStars: {},

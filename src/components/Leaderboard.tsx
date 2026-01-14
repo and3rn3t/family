@@ -77,7 +77,7 @@ export function Leaderboard({ members }: LeaderboardProps) {
                 {getRankIcon(index)}
               </div>
 
-              <MemberAvatar name={item.member.name} color={item.member.color} avatarUrl={item.member.avatarUrl} size="md" />
+              <MemberAvatar name={item.member.name} color={item.member.color} avatarUrl={item.member.avatarUrl} avatarIcon={item.member.avatarIcon} size="md" />
 
               <div className="flex-1">
                 <h4 className="font-heading font-semibold">{item.member.name}</h4>
@@ -104,7 +104,7 @@ export function Leaderboard({ members }: LeaderboardProps) {
                 {getRankIcon(index)}
               </div>
 
-              <MemberAvatar name={item.member.name} color={item.member.color} avatarUrl={item.member.avatarUrl} size="md" />
+              <MemberAvatar name={item.member.name} color={item.member.color} avatarUrl={item.member.avatarUrl} avatarIcon={item.member.avatarIcon} size="md" />
 
               <div className="flex-1">
                 <h4 className="font-heading font-semibold">{item.member.name}</h4>
@@ -131,7 +131,7 @@ export function Leaderboard({ members }: LeaderboardProps) {
                 {getRankIcon(index)}
               </div>
 
-              <MemberAvatar name={member.name} color={member.color} avatarUrl={member.avatarUrl} size="md" />
+              <MemberAvatar name={member.name} color={member.color} avatarUrl={member.avatarUrl} avatarIcon={member.avatarIcon} size="md" />
 
               <div className="flex-1">
                 <h4 className="font-heading font-semibold">{member.name}</h4>

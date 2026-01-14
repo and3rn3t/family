@@ -67,6 +67,7 @@ export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: Chore
                     name={member.name} 
                     color={member.color}
                     avatarUrl={member.avatarUrl}
+                    avatarIcon={member.avatarIcon}
                     size="sm" 
                   />
                 )}
