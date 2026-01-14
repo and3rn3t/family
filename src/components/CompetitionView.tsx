@@ -131,6 +131,7 @@ export function CompetitionView({ members, competitions, weeklyCompetitions }: C
                     <MemberAvatar
                       name={ranking.member.name}
                       color={ranking.member.color}
+                      avatarUrl={ranking.member.avatarUrl}
                       size="lg"
                     />
 
@@ -185,6 +186,7 @@ export function CompetitionView({ members, competitions, weeklyCompetitions }: C
                             <MemberAvatar
                               name={winner.name}
                               color={winner.color}
+                              avatarUrl={winner.avatarUrl}
                               size="sm"
                             />
                             <div className="flex-1">
@@ -244,6 +246,7 @@ export function CompetitionView({ members, competitions, weeklyCompetitions }: C
                     <MemberAvatar
                       name={ranking.member.name}
                       color={ranking.member.color}
+                      avatarUrl={ranking.member.avatarUrl}
                       size="lg"
                     />
 
@@ -298,6 +301,7 @@ export function CompetitionView({ members, competitions, weeklyCompetitions }: C
                             <MemberAvatar
                               name={winner.name}
                               color={winner.color}
+                              avatarUrl={winner.avatarUrl}
                               size="sm"
                             />
                             <div className="flex-1">

@@ -2,6 +2,7 @@ export interface FamilyMember {
   id: string
   name: string
   color: string
+  avatarUrl?: string
   stars?: number
   achievements?: string[]
   monthlyStars?: Record<string, number>

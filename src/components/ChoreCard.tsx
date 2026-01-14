@@ -65,7 +65,8 @@ export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: Chore
                 {member && (
                   <MemberAvatar 
                     name={member.name} 
-                    color={member.color} 
+                    color={member.color}
+                    avatarUrl={member.avatarUrl}
                     size="sm" 
                   />
                 )}

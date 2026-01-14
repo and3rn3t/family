@@ -114,6 +114,7 @@ function App() {
         id: `member-${Date.now()}`,
         name: memberData.name,
         color: memberData.color,
+        avatarUrl: memberData.avatarUrl,
         stars: 0,
         achievements: [],
         monthlyStars: {},

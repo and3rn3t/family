@@ -26,7 +26,7 @@ export function MemberCard({ member, chores, onEdit, onDelete, onViewAchievement
     <Card className="p-6 hover:shadow-lg transition-all duration-200">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <MemberAvatar name={member.name} color={member.color} size="lg" />
+          <MemberAvatar name={member.name} color={member.color} avatarUrl={member.avatarUrl} size="lg" />
           <div>
             <h3 className="font-heading font-semibold text-xl">{member.name}</h3>
             <p className="text-sm text-muted-foreground">

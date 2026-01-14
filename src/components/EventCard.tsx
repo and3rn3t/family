@@ -93,7 +93,7 @@ export function EventCard({ event, member, onEdit, onDelete, compact = false }: 
         </div>
         {member && (
           <div className="flex justify-center">
-            <MemberAvatar name={member.name} color={member.color} size="sm" />
+            <MemberAvatar name={member.name} color={member.color} avatarUrl={member.avatarUrl} size="sm" />
           </div>
         )}
       </div>
@@ -150,7 +150,7 @@ export function EventCard({ event, member, onEdit, onDelete, compact = false }: 
             )}
           </div>
           {member && (
-            <MemberAvatar name={member.name} color={member.color} size="md" />
+            <MemberAvatar name={member.name} color={member.color} avatarUrl={member.avatarUrl} size="md" />
           )}
         </div>
       </div>
