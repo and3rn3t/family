@@ -5,6 +5,7 @@ export interface FamilyMember {
   stars?: number
   achievements?: string[]
   monthlyStars?: Record<string, number>
+  weeklyStars?: Record<string, number>
 }
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
@@ -31,6 +32,17 @@ export interface MonthlyCompetition {
   winner?: string
   rankings: { memberId: string; stars: number }[]
   completedAt?: number
+}
+
+export interface WeeklyCompetition {
+  week: string
+  year: number
+  weekNumber: number
+  winner?: string
+  rankings: { memberId: string; stars: number }[]
+  completedAt?: number
+  startDate: number
+  endDate: number
 }
 
 export interface Achievement {

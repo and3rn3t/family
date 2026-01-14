@@ -4,12 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { ChartBar, Calendar, Users, Trophy } from '@phosphor-icons/react'
-import { FamilyMember, Chore, MonthlyCompetition, Achievement } from '@/lib/types'
+import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement } from '@/lib/types'
 import { 
   getStarsForChore, 
   getCurrentMonthKey, 
+  getCurrentWeekKey,
   getMemberMonthlyStars,
-  finalizeMonthlyCompetition 
+  getMemberWeeklyStars,
+  finalizeMonthlyCompetition,
+  finalizeWeeklyCompetition 
 } from '@/lib/helpers'
 import { checkNewAchievements } from '@/lib/achievements'
 import { DashboardView } from '@/components/DashboardView'
@@ -26,7 +29,9 @@ function App() {
   const [members, setMembers] = useKV<FamilyMember[]>('family-members', [])
   const [chores, setChores] = useKV<Chore[]>('chores', [])
   const [competitions, setCompetitions] = useKV<MonthlyCompetition[]>('monthly-competitions', [])
+  const [weeklyCompetitions, setWeeklyCompetitions] = useKV<WeeklyCompetition[]>('weekly-competitions', [])
   const [lastMonthCheck, setLastMonthCheck] = useKV<string>('last-month-check', '')
+  const [lastWeekCheck, setLastWeekCheck] = useKV<string>('last-week-check', '')
   
   const [memberDialogOpen, setMemberDialogOpen] = useState(false)
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
@@ -40,6 +45,7 @@ function App() {
   const safeMembers = members || []
   const safeChores = chores || []
   const safeCompetitions = competitions || []
+  const safeWeeklyCompetitions = weeklyCompetitions || []
 
   useEffect(() => {
     const currentMonthKey = getCurrentMonthKey()
@@ -64,6 +70,30 @@ function App() {
       setLastMonthCheck(currentMonthKey)
     }
   }, [lastMonthCheck, safeMembers, setCompetitions, setLastMonthCheck])
+
+  useEffect(() => {
+    const currentWeekKey = getCurrentWeekKey()
+    
+    if (lastWeekCheck && lastWeekCheck !== currentWeekKey) {
+      const competition = finalizeWeeklyCompetition(safeMembers, lastWeekCheck)
+      
+      setWeeklyCompetitions((current) => [...(current || []), competition])
+      
+      if (competition.winner) {
+        const winner = safeMembers.find((m) => m.id === competition.winner)
+        if (winner) {
+          toast.success(`⭐ ${winner.name} won last week's mini-competition!`, {
+            description: `Great work this week!`,
+            duration: 5000,
+          })
+        }
+      }
+    }
+    
+    if (lastWeekCheck !== currentWeekKey) {
+      setLastWeekCheck(currentWeekKey)
+    }
+  }, [lastWeekCheck, safeMembers, setWeeklyCompetitions, setLastWeekCheck])
 
   const handleSaveMember = (memberData: Omit<FamilyMember, 'id'> & { id?: string }) => {
     if (memberData.id) {
@@ -127,6 +157,7 @@ function App() {
 
     const starsEarned = getStarsForChore(chore.frequency)
     const currentMonthKey = getCurrentMonthKey()
+    const currentWeekKey = getCurrentWeekKey()
     
     setChores((current) =>
       (current || []).map((c) =>
@@ -141,12 +172,17 @@ function App() {
         if (m.id === chore.assignedTo) {
           const newTotalStars = (m.stars || 0) + starsEarned
           const currentMonthStars = getMemberMonthlyStars(m, currentMonthKey) + starsEarned
+          const currentWeekStars = getMemberWeeklyStars(m, currentWeekKey) + starsEarned
           const updatedMember = {
             ...m,
             stars: newTotalStars,
             monthlyStars: {
               ...(m.monthlyStars || {}),
               [currentMonthKey]: currentMonthStars,
+            },
+            weeklyStars: {
+              ...(m.weeklyStars || {}),
+              [currentWeekKey]: currentWeekStars,
             },
           }
 
@@ -255,7 +291,11 @@ function App() {
           </TabsContent>
 
           <TabsContent value="competition" className="space-y-6">
-            <CompetitionView members={safeMembers} competitions={safeCompetitions} />
+            <CompetitionView 
+              members={safeMembers} 
+              competitions={safeCompetitions}
+              weeklyCompetitions={safeWeeklyCompetitions}
+            />
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-6">
