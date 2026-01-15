@@ -222,8 +222,8 @@ Transform daily household management from a chore into a collaborative family ga
 - [ ] **Auto-refresh** - Keep data fresh on always-on display
 
 ### 8.2 Data & Backup
-- [ ] **Export all data** - Full backup to JSON file
-- [ ] **Import data** - Restore from backup
+- [x] **Export all data** - Full backup to JSON file ✅
+- [x] **Import data** - Restore from backup ✅
 - [ ] **Reset options** - Start fresh (with confirmation)
 - [ ] **Data cleanup** - Archive old competitions/events
 

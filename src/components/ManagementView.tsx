@@ -1,7 +1,7 @@
 import { FamilyMember, Chore } from '@/lib/types'
 import { MemberCard } from './MemberCard'
 import { Button } from '@/components/ui/button'
-import { Plus } from '@phosphor-icons/react'
+import { Plus, FloppyDisk } from '@phosphor-icons/react'
 
 interface ManagementViewProps {
   members: FamilyMember[]
@@ -9,6 +9,7 @@ interface ManagementViewProps {
   onAddMember: () => void
   onEditMember: (member: FamilyMember) => void
   onDeleteMember: (memberId: string) => void
+  onOpenBackup: () => void
 }
 
 export function ManagementView({
@@ -17,6 +18,7 @@ export function ManagementView({
   onAddMember,
   onEditMember,
   onDeleteMember,
+  onOpenBackup,
 }: ManagementViewProps) {
   return (
     <div className="space-y-8">
@@ -27,10 +29,16 @@ export function ManagementView({
             Manage your family members and their chores
           </p>
         </div>
-        <Button onClick={onAddMember} size="lg">
-          <Plus className="h-5 w-5 mr-2" />
-          Add Member
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={onOpenBackup} size="lg" variant="outline">
+            <FloppyDisk className="h-5 w-5 mr-2" />
+            Backup
+          </Button>
+          <Button onClick={onAddMember} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Add Member
+          </Button>
+        </div>
       </div>
 
       {members.length === 0 ? (

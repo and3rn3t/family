@@ -39,8 +39,10 @@ import { ChoreDialog } from '@/components/ChoreDialog'
 import { EventDialog } from '@/components/EventDialog'
 import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
 import { ChoreWheelDialog } from '@/components/ChoreWheelDialog'
+import { DataBackupDialog } from '@/components/DataBackupDialog'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
+import { BackupData } from '@/lib/data-backup'
 
 function App() {
   const [members, setMembers] = useKV<FamilyMember[]>('family-members', [])
@@ -69,6 +71,7 @@ function App() {
   const [eventDialogOpen, setEventDialogOpen] = useState(false)
   const [achievementsDialogOpen, setAchievementsDialogOpen] = useState(false)
   const [wheelDialogOpen, setWheelDialogOpen] = useState(false)
+  const [backupDialogOpen, setBackupDialogOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<FamilyMember | undefined>()
   const [viewingMemberAchievements, setViewingMemberAchievements] = useState<FamilyMember | null>(null)
   const [editingChore, setEditingChore] = useState<Chore | undefined>()
@@ -545,6 +548,30 @@ function App() {
     setWheelDialogOpen(true)
   }
 
+  const handleOpenBackup = () => {
+    setBackupDialogOpen(true)
+  }
+
+  const handleImportData = (data: BackupData['data']) => {
+    // Replace all data with imported data
+    setMembers(data.members)
+    setChores(data.chores)
+    setEvents(data.events)
+    setCompetitions(data.monthlyCompetitions)
+    setWeeklyCompetitions(data.weeklyCompetitions)
+    
+    // Apply settings if present
+    if (data.settings?.isDarkMode !== undefined) {
+      setIsDarkMode(data.settings.isDarkMode)
+    }
+    if (data.settings?.soundEnabled !== undefined) {
+      setSoundEnabled(data.settings.soundEnabled)
+    }
+    if (data.settings?.theme) {
+      setCurrentTheme(data.settings.theme)
+    }
+  }
+
   const handleAddEvent = () => {
     setEditingEvent(undefined)
     setEventDialogOpen(true)
@@ -642,6 +669,7 @@ function App() {
                 onAddMember={handleAddMember}
                 onEditMember={handleEditMember}
                 onDeleteMember={handleDeleteMember}
+                onOpenBackup={handleOpenBackup}
               />
             </SectionErrorBoundary>
           </TabsContent>
@@ -674,6 +702,22 @@ function App() {
         onOpenChange={setWheelDialogOpen}
         members={safeMembers}
         soundEnabled={soundEnabled}
+      />
+
+      <DataBackupDialog
+        open={backupDialogOpen}
+        onOpenChange={setBackupDialogOpen}
+        members={safeMembers}
+        chores={safeChores}
+        events={safeEvents}
+        monthlyCompetitions={safeCompetitions}
+        weeklyCompetitions={safeWeeklyCompetitions}
+        settings={{
+          isDarkMode,
+          soundEnabled,
+          theme: currentTheme,
+        }}
+        onImport={handleImportData}
       />
 
       <EventDialog
