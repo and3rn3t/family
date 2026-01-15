@@ -1,13 +1,53 @@
+# =============================================================================
+# Family Organizer - Docker Compose Configuration
+# Optimized for Raspberry Pi deployment
+# =============================================================================
+
 services:
   family-organizer:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: family-organizer
+    
+    # Port mapping - change 80:80 to 8080:80 if port 80 is in use
     ports:
       - "80:80"
+    
+    # Restart policy - keeps app running after reboots
     restart: unless-stopped
+    
+    # Resource limits - important for Raspberry Pi
+    # Adjust based on your Pi model (Pi 4 has 2-8GB RAM)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+    
+    # Health check (also defined in Dockerfile)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Logging configuration - prevent logs from filling disk
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Network
     networks:
       - family-network
 
+# Network configuration
 networks:
   family-network:
     driver: bridge
