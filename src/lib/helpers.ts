@@ -1,4 +1,4 @@
-import { ChoreFrequency, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType, DayOfWeek } from './types'
+import { ChoreFrequency, ChoreDifficulty, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType, DayOfWeek } from './types'
 
 export const getFrequencyLabel = (frequency: ChoreFrequency): string => {
   const labels: Record<ChoreFrequency, string> = {
@@ -50,7 +50,7 @@ export const getInitials = (name: string): string => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-export const getStarsForChore = (frequency: ChoreFrequency): number => {
+export const getBaseStarsForChore = (frequency: ChoreFrequency): number => {
   const stars: Record<ChoreFrequency, number> = {
     daily: 1,
     weekly: 3,
@@ -58,6 +58,39 @@ export const getStarsForChore = (frequency: ChoreFrequency): number => {
     monthly: 10,
   }
   return stars[frequency]
+}
+
+export const getDifficultyMultiplier = (difficulty: ChoreDifficulty): number => {
+  const multipliers: Record<ChoreDifficulty, number> = {
+    easy: 1,
+    medium: 2,
+    hard: 3,
+  }
+  return multipliers[difficulty]
+}
+
+export const getDifficultyLabel = (difficulty: ChoreDifficulty): string => {
+  const labels: Record<ChoreDifficulty, string> = {
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+  }
+  return labels[difficulty]
+}
+
+export const getDifficultyEmoji = (difficulty: ChoreDifficulty): string => {
+  const emojis: Record<ChoreDifficulty, string> = {
+    easy: '🟢',
+    medium: '🟡',
+    hard: '🔴',
+  }
+  return emojis[difficulty]
+}
+
+export const getStarsForChore = (frequency: ChoreFrequency, difficulty?: ChoreDifficulty): number => {
+  const baseStars = getBaseStarsForChore(frequency)
+  const multiplier = getDifficultyMultiplier(difficulty || 'medium')
+  return baseStars * multiplier
 }
 
 export const getCurrentMonthKey = (): string => {

@@ -38,8 +38,8 @@ Transform daily household management from a chore into a collaborative family ga
 ### 1.2 Chore Enhancements
 - [x] **Chore templates** - Pre-built common household chores to quick-add ✅
 - [x] **Chore rotation** - Auto-rotate assignments weekly/monthly ✅
+- [x] **Chore difficulty rating** - Easy/Medium/Hard with star multipliers ✅
 - [ ] **Bulk chore creation** - Add multiple chores at once
-- [ ] **Chore difficulty rating** - Easy/Medium/Hard with star multipliers
 - [ ] **Due time for chores** - "Before breakfast" or specific times
 - [ ] **Chore notes** - Add instructions or tips to each chore
 

@@ -15,12 +15,14 @@ export interface FamilyMember {
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
 export type RotationFrequency = 'none' | 'weekly' | 'monthly'
+export type ChoreDifficulty = 'easy' | 'medium' | 'hard'
 
 export interface Chore {
   id: string
   title: string
   description: string
   frequency: ChoreFrequency
+  difficulty?: ChoreDifficulty // Optional for backward compatibility, defaults to 'medium'
   assignedTo: string
   createdAt: number
   lastCompleted?: number

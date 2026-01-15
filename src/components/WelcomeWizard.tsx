@@ -12,8 +12,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { FamilyMember, Chore, AVATAR_COLORS, ChoreFrequency } from '@/lib/types'
-import { getInitials } from '@/lib/helpers'
+import { FamilyMember, Chore, AVATAR_COLORS } from '@/lib/types'
+import { getInitials, getFrequencyLabel, getStarsForChore, getDifficultyEmoji } from '@/lib/helpers'
 import { PRESET_AVATAR_ICONS, getIconByName } from '@/lib/avatar-icons'
 import { CHORE_TEMPLATES, ChoreTemplate, TEMPLATE_CATEGORIES } from '@/lib/chore-templates'
 import {
@@ -52,13 +52,6 @@ interface NewMember {
 interface SelectedChore {
   template: ChoreTemplate
   assignedTo: string
-}
-
-const FREQUENCY_LABELS: Record<ChoreFrequency, { label: string; stars: number }> = {
-  daily: { label: 'Daily', stars: 1 },
-  weekly: { label: 'Weekly', stars: 3 },
-  biweekly: { label: 'Bi-weekly', stars: 5 },
-  monthly: { label: 'Monthly', stars: 10 },
 }
 
 export function WelcomeWizard({ open, onComplete, onSkip }: WelcomeWizardProps) {
@@ -153,6 +146,7 @@ export function WelcomeWizard({ open, onComplete, onSkip }: WelcomeWizardProps) 
       title: c.template.title,
       description: c.template.description,
       frequency: c.template.frequency,
+      difficulty: c.template.difficulty || 'medium',
       assignedTo: c.assignedTo,
       createdAt: Date.now(),
     }))
@@ -513,7 +507,7 @@ export function WelcomeWizard({ open, onComplete, onSkip }: WelcomeWizardProps) 
                           <p className="text-sm text-muted-foreground">{template.description}</p>
                         </div>
                         <Badge variant="outline" className="shrink-0">
-                          {FREQUENCY_LABELS[template.frequency].label} · {FREQUENCY_LABELS[template.frequency].stars}⭐
+                          {getDifficultyEmoji(template.difficulty || 'medium')} {getFrequencyLabel(template.frequency)} · {getStarsForChore(template.frequency, template.difficulty)}⭐
                         </Badge>
                       </div>
                       

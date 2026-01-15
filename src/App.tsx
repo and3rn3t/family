@@ -355,7 +355,7 @@ function App() {
     const member = safeMembers.find((m) => m.id === chore.assignedTo)
     if (!member) return
 
-    const baseStars = getStarsForChore(chore.frequency)
+    const baseStars = getStarsForChore(chore.frequency, chore.difficulty)
     const currentMonthKey = getCurrentMonthKey()
     const currentWeekKey = getCurrentWeekKey()
     const todayKey = getTodayDateKey()

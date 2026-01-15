@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MemberAvatar } from './MemberAvatar'
 import { Chore, FamilyMember } from '@/lib/types'
-import { getFrequencyLabel, isChoreOverdue, isChoreComplete, getStarsForChore } from '@/lib/helpers'
+import { getFrequencyLabel, isChoreOverdue, isChoreComplete, getStarsForChore, getDifficultyLabel, getDifficultyEmoji } from '@/lib/helpers'
 import { Trash, PencilSimple, Star } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -20,7 +20,8 @@ interface ChoreCardProps {
 export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: ChoreCardProps) {
   const isComplete = isChoreComplete(chore)
   const isOverdue = isChoreOverdue(chore)
-  const stars = getStarsForChore(chore.frequency)
+  const difficulty = chore.difficulty || 'medium'
+  const stars = getStarsForChore(chore.frequency, difficulty)
 
   return (
     <motion.div
@@ -84,9 +85,14 @@ export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: Chore
             )}
             
             <div className="flex items-center justify-between">
-              <Badge variant={isOverdue && !isComplete ? 'destructive' : 'secondary'}>
-                {getFrequencyLabel(chore.frequency)}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={isOverdue && !isComplete ? 'destructive' : 'secondary'}>
+                  {getFrequencyLabel(chore.frequency)}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {getDifficultyEmoji(difficulty)} {getDifficultyLabel(difficulty)}
+                </Badge>
+              </div>
               
               <div className="flex gap-1">
                 <Button

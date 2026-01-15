@@ -23,8 +23,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { Chore, ChoreFrequency, FamilyMember, RotationFrequency } from '@/lib/types'
-import { getFrequencyLabel, getStarsForChore, getRotationLabel } from '@/lib/helpers'
+import { Chore, ChoreFrequency, ChoreDifficulty, FamilyMember, RotationFrequency } from '@/lib/types'
+import { getFrequencyLabel, getStarsForChore, getRotationLabel, getDifficultyLabel, getDifficultyEmoji } from '@/lib/helpers'
 import { CHORE_TEMPLATES, TEMPLATE_CATEGORIES, ChoreTemplate } from '@/lib/chore-templates'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Star, CaretDown, Lightning, ArrowsClockwise } from '@phosphor-icons/react'
@@ -38,12 +38,14 @@ interface ChoreDialogProps {
 }
 
 const FREQUENCIES: ChoreFrequency[] = ['daily', 'weekly', 'biweekly', 'monthly']
+const DIFFICULTIES: ChoreDifficulty[] = ['easy', 'medium', 'hard']
 const ROTATION_OPTIONS: RotationFrequency[] = ['none', 'weekly', 'monthly']
 
 export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: ChoreDialogProps) {
   const [title, setTitle] = useState(chore?.title || '')
   const [description, setDescription] = useState(chore?.description || '')
   const [frequency, setFrequency] = useState<ChoreFrequency>(chore?.frequency || 'weekly')
+  const [difficulty, setDifficulty] = useState<ChoreDifficulty>(chore?.difficulty || 'medium')
   const [assignedTo, setAssignedTo] = useState(chore?.assignedTo || (members[0]?.id || ''))
   const [showTemplates, setShowTemplates] = useState(false)
   const [templateCategory, setTemplateCategory] = useState('all')
@@ -56,6 +58,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       setTitle(chore?.title || '')
       setDescription(chore?.description || '')
       setFrequency(chore?.frequency || 'weekly')
+      setDifficulty(chore?.difficulty || 'medium')
       setAssignedTo(chore?.assignedTo || (members[0]?.id || ''))
       setShowTemplates(false)
       setRotation(chore?.rotation || 'none')
@@ -79,6 +82,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
     setTitle(template.title)
     setDescription(template.description)
     setFrequency(template.frequency)
+    setDifficulty(template.difficulty || 'medium')
     setShowTemplates(false)
   }
 
@@ -90,6 +94,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       title: title.trim(),
       description: description.trim(),
       frequency,
+      difficulty,
       assignedTo,
       lastCompleted: chore?.lastCompleted,
       rotation: rotation !== 'none' ? rotation : undefined,
@@ -144,9 +149,12 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                       className="flex items-center justify-between p-2 text-left text-sm rounded-md border hover:bg-accent hover:text-accent-foreground transition-colors"
                     >
                       <span className="font-medium truncate">{template.title}</span>
-                      <div className="flex items-center gap-1 text-muted-foreground shrink-0 ml-2">
-                        <Star weight="fill" className="h-3 w-3 text-amber-500" />
-                        <span className="text-xs">{getStarsForChore(template.frequency)}</span>
+                      <div className="flex items-center gap-2 text-muted-foreground shrink-0 ml-2">
+                        <span className="text-xs">{getDifficultyEmoji(template.difficulty || 'medium')}</span>
+                        <div className="flex items-center gap-1">
+                          <Star weight="fill" className="h-3 w-3 text-amber-500" />
+                          <span className="text-xs">{getStarsForChore(template.frequency, template.difficulty)}</span>
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -176,28 +184,50 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="frequency">Frequency</Label>
-            <Select value={frequency} onValueChange={(v) => setFrequency(v as ChoreFrequency)}>
-              <SelectTrigger id="frequency">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FREQUENCIES.map((freq) => (
-                  <SelectItem key={freq} value={freq}>
-                    <div className="flex items-center justify-between w-full gap-4">
-                      <span>{getFrequencyLabel(freq)}</span>
-                      <div className="flex items-center gap-1 text-secondary">
-                        <Star weight="fill" className="h-3 w-3" />
-                        <span className="text-xs font-semibold">{getStarsForChore(freq)}</span>
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Earn <Star weight="fill" className="inline h-3 w-3 text-secondary" /> {getStarsForChore(frequency)} stars when completed
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="frequency">Frequency</Label>
+              <Select value={frequency} onValueChange={(v) => setFrequency(v as ChoreFrequency)}>
+                <SelectTrigger id="frequency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FREQUENCIES.map((freq) => (
+                    <SelectItem key={freq} value={freq}>
+                      {getFrequencyLabel(freq)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select value={difficulty} onValueChange={(v) => setDifficulty(v as ChoreDifficulty)}>
+                <SelectTrigger id="difficulty">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DIFFICULTIES.map((diff) => (
+                    <SelectItem key={diff} value={diff}>
+                      <span>{getDifficultyEmoji(diff)} {getDifficultyLabel(diff)}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="p-3 rounded-lg bg-secondary/10 border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Stars earned:</span>
+              <div className="flex items-center gap-1">
+                <Star weight="fill" className="h-5 w-5 text-secondary" />
+                <span className="text-lg font-bold">{getStarsForChore(frequency, difficulty)}</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {getDifficultyEmoji(difficulty)} {getDifficultyLabel(difficulty)} chores earn {difficulty === 'easy' ? '1x' : difficulty === 'medium' ? '2x' : '3x'} stars
             </p>
           </div>
           
