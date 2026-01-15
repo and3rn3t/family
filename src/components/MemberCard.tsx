@@ -13,9 +13,10 @@ interface MemberCardProps {
   onEdit: (member: FamilyMember) => void
   onDelete: (memberId: string) => void
   onViewAchievements?: (member: FamilyMember) => void
+  isViewOnly?: boolean
 }
 
-export function MemberCard({ member, chores, onEdit, onDelete, onViewAchievements }: MemberCardProps) {
+export function MemberCard({ member, chores, onEdit, onDelete, onViewAchievements, isViewOnly = false }: MemberCardProps) {
   const totalChores = chores.length
   const completedChores = chores.filter(isChoreComplete).length
   const completionPercentage = totalChores > 0 ? (completedChores / totalChores) * 100 : 0
@@ -35,24 +36,26 @@ export function MemberCard({ member, chores, onEdit, onDelete, onViewAchievement
           </div>
         </div>
         
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(member)}
-            className="h-8 w-8 p-0"
-          >
-            <PencilSimple className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(member.id)}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </div>
+        {!isViewOnly && (
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(member)}
+              className="h-8 w-8 p-0"
+            >
+              <PencilSimple className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(member.id)}
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3 mb-4">

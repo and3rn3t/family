@@ -20,9 +20,10 @@ interface ScheduleViewProps {
   onAddEvent: () => void
   onEditEvent: (event: Event) => void
   onDeleteEvent: (eventId: string) => void
+  isViewOnly?: boolean
 }
 
-export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent, onDeleteEvent }: ScheduleViewProps) {
+export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent, onDeleteEvent, isViewOnly = false }: ScheduleViewProps) {
   const [selectedMemberId, setSelectedMemberId] = useState<string>('all')
   const [weekOffset, setWeekOffset] = useState(0)
   const [viewMode, setViewMode] = useState<'today' | 'week'>('today')
@@ -319,10 +320,12 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={onAddEvent} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Add Event</span>
-          </Button>
+          {!isViewOnly && (
+            <Button onClick={onAddEvent} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Add Event</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -418,32 +421,34 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                                 </div>
                               </div>
                             </div>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:bg-background/50"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onEditEvent(event)
-                                }}
-                              >
-                                <PencilSimple className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-destructive hover:bg-background/50 hover:text-destructive disabled:opacity-50"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDeleteEvent(event.id)
-                                }}
-                                disabled={isRecurringInstance}
-                                title={isRecurringInstance ? 'Cannot delete recurring instance' : 'Delete event'}
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            {!isViewOnly && (
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 hover:bg-background/50"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onEditEvent(event)
+                                  }}
+                                >
+                                  <PencilSimple className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-destructive hover:bg-background/50 hover:text-destructive disabled:opacity-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDeleteEvent(event.id)
+                                  }}
+                                  disabled={isRecurringInstance}
+                                  title={isRecurringInstance ? 'Cannot delete recurring instance' : 'Delete event'}
+                                >
+                                  <Trash className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                           {member && (
                             <div className="flex items-center gap-2 pt-2 border-t">
@@ -703,32 +708,34 @@ export function ScheduleView({ members, chores, events, onAddEvent, onEditEvent,
                                   </p>
                                 )}
                               </div>
-                              <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-5 w-5 hover:bg-background/50"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onEditEvent(event)
-                                  }}
-                                >
-                                  <PencilSimple className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-5 w-5 text-destructive hover:bg-background/50 hover:text-destructive disabled:opacity-50"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDeleteEvent(event.id)
-                                  }}
-                                  disabled={isRecurringInstance}
-                                  title={isRecurringInstance ? 'Cannot delete recurring instance' : 'Delete event'}
-                                >
-                                  <Trash className="h-3 w-3" />
-                                </Button>
-                              </div>
+                              {!isViewOnly && (
+                                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 hover:bg-background/50"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onEditEvent(event)
+                                    }}
+                                  >
+                                    <PencilSimple className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 text-destructive hover:bg-background/50 hover:text-destructive disabled:opacity-50"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onDeleteEvent(event.id)
+                                    }}
+                                    disabled={isRecurringInstance}
+                                    title={isRecurringInstance ? 'Cannot delete recurring instance' : 'Delete event'}
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                             {member && (
                               <div className="flex justify-center">

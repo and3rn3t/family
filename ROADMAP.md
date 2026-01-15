@@ -271,9 +271,9 @@ Transform daily household management from a chore into a collaborative family ga
 - [ ] **Crash recovery** - Recover from corrupted localStorage
 
 ### 10.2 Security & Privacy
-- [ ] **PIN protection** - Lock management features
+- [x] **View-only mode** - Kiosk shows but can't edit ✅
+- [x] **PIN protection** - Lock view-only mode with PIN ✅
 - [ ] **Admin mode** - Parent-only settings
-- [ ] **View-only mode** - Kiosk shows but can't edit
 - [ ] **Data encryption** - Secure local storage
 
 ### 10.2 Multi-Device (Optional)

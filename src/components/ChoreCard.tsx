@@ -15,9 +15,10 @@ interface ChoreCardProps {
   onComplete: (choreId: string) => void
   onEdit: (chore: Chore) => void
   onDelete: (choreId: string) => void
+  isViewOnly?: boolean
 }
 
-export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: ChoreCardProps) {
+export function ChoreCard({ chore, member, onComplete, onEdit, onDelete, isViewOnly = false }: ChoreCardProps) {
   const isComplete = isChoreComplete(chore)
   const isOverdue = isChoreOverdue(chore)
   const difficulty = chore.difficulty || 'medium'
@@ -94,24 +95,26 @@ export function ChoreCard({ chore, member, onComplete, onEdit, onDelete }: Chore
                 </Badge>
               </div>
               
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(chore)}
-                  className="h-8 w-8 p-0"
-                >
-                  <PencilSimple className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(chore.id)}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
+              {!isViewOnly && (
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(chore)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <PencilSimple className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(chore.id)}
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

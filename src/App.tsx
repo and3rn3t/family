@@ -40,6 +40,7 @@ import { EventDialog } from '@/components/EventDialog'
 import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
 import { ChoreWheelDialog } from '@/components/ChoreWheelDialog'
 import { DataBackupDialog } from '@/components/DataBackupDialog'
+import { ViewModeToggle, ViewOnlyBanner } from '@/components/ViewModeToggle'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
 import { BackupData } from '@/lib/data-backup'
@@ -72,6 +73,8 @@ function App() {
   const [achievementsDialogOpen, setAchievementsDialogOpen] = useState(false)
   const [wheelDialogOpen, setWheelDialogOpen] = useState(false)
   const [backupDialogOpen, setBackupDialogOpen] = useState(false)
+  const [isViewOnly, setIsViewOnly] = useKV<boolean>('view-only-mode', false)
+  const [viewOnlyPin, setViewOnlyPin] = useKV<string>('view-only-pin', '')
   const [editingMember, setEditingMember] = useState<FamilyMember | undefined>()
   const [viewingMemberAchievements, setViewingMemberAchievements] = useState<FamilyMember | null>(null)
   const [editingChore, setEditingChore] = useState<Chore | undefined>()
@@ -595,6 +598,11 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-1">
+            <ViewModeToggle
+              isViewOnly={isViewOnly || false}
+              onToggle={setIsViewOnly}
+              pin={viewOnlyPin || undefined}
+            />
             <SoundToggle enabled={soundEnabled ?? true} onToggle={handleToggleSound} />
             <ThemeSelector currentTheme={colorTheme || 'default'} onSelectTheme={handleChangeTheme} />
             <ThemeToggle isDark={isDarkMode || false} onToggle={handleToggleTheme} />
@@ -634,6 +642,7 @@ function App() {
                 onAddChore={handleAddChore}
                 onSpinWheel={handleOpenWheel}
                 onViewAchievements={handleViewAchievements}
+                isViewOnly={isViewOnly || false}
               />
             </SectionErrorBoundary>
           </TabsContent>
@@ -657,6 +666,7 @@ function App() {
                 onAddEvent={handleAddEvent}
                 onEditEvent={handleEditEvent}
                 onDeleteEvent={handleDeleteEvent}
+                isViewOnly={isViewOnly || false}
               />
             </SectionErrorBoundary>
           </TabsContent>
@@ -670,6 +680,9 @@ function App() {
                 onEditMember={handleEditMember}
                 onDeleteMember={handleDeleteMember}
                 onOpenBackup={handleOpenBackup}
+                isViewOnly={isViewOnly || false}
+                onSetPin={setViewOnlyPin}
+                currentPin={viewOnlyPin || ''}
               />
             </SectionErrorBoundary>
           </TabsContent>
@@ -753,6 +766,9 @@ function App() {
       />
       
       <Toaster position="top-center" richColors />
+      
+      {/* View-only mode indicator */}
+      {isViewOnly && <ViewOnlyBanner />}
     </div>
   )
 }

@@ -19,6 +19,7 @@ interface DashboardViewProps {
   onAddChore: () => void
   onSpinWheel: () => void
   onViewAchievements?: (member: FamilyMember) => void
+  isViewOnly?: boolean
 }
 
 export function DashboardView({
@@ -32,6 +33,7 @@ export function DashboardView({
   onAddChore,
   onSpinWheel,
   onViewAchievements,
+  isViewOnly = false,
 }: DashboardViewProps) {
   const totalChores = chores.length
   const completedChores = chores.filter(isChoreComplete).length
@@ -72,16 +74,18 @@ export function DashboardView({
           </p>
         </div>
         <div className="flex gap-2">
-          {members.length >= 2 && (
+          {!isViewOnly && members.length >= 2 && (
             <Button onClick={onSpinWheel} size="lg" variant="outline">
               <CircleNotch className="h-5 w-5 mr-2" />
               Spin Wheel
             </Button>
           )}
-          <Button onClick={onAddChore} size="lg">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Chore
-          </Button>
+          {!isViewOnly && (
+            <Button onClick={onAddChore} size="lg">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Chore
+            </Button>
+          )}
         </div>
       </div>
 
@@ -98,6 +102,7 @@ export function DashboardView({
               onEdit={onEditMember}
               onDelete={onDeleteMember}
               onViewAchievements={onViewAchievements}
+              isViewOnly={isViewOnly}
             />
           )
         })}
@@ -112,12 +117,14 @@ export function DashboardView({
           <div className="text-center py-12 space-y-4">
             <h4 className="font-heading text-xl font-semibold">No Chores Yet</h4>
             <p className="text-muted-foreground">
-              Add your first chore to get started!
+              {isViewOnly ? 'No chores have been created.' : 'Add your first chore to get started!'}
             </p>
-            <Button onClick={onAddChore} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Chore
-            </Button>
+            {!isViewOnly && (
+              <Button onClick={onAddChore} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Chore
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
@@ -131,6 +138,7 @@ export function DashboardView({
                   onComplete={onCompleteChore}
                   onEdit={onEditChore}
                   onDelete={onDeleteChore}
+                  isViewOnly={isViewOnly}
                 />
               )
             })}

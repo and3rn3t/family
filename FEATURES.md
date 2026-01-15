@@ -401,6 +401,23 @@ Hard   → ×3
 - Auto-hiding cursor support
 - Full-screen Chromium compatibility
 
+### View-Only Mode
+
+**Purpose**: Prevent accidental edits on shared displays or kiosks.
+
+**Features**:
+- Toggle view-only mode from header (eye icon)
+- All edit/delete buttons hidden when active
+- Chore completion still works (core functionality)
+- Visual banner indicates view-only status
+- Optional PIN protection to unlock editing
+
+**PIN Protection**:
+- Set a 4-6 digit PIN in Management settings
+- PIN required to exit view-only mode
+- Prevents children from accidentally modifying data
+- PIN can be removed at any time
+
 ### Progressive Web App (PWA)
 
 **Installable App Experience**:
