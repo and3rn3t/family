@@ -3,11 +3,12 @@ import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
-import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise, Fire } from '@phosphor-icons/react'
+import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SoundToggle } from '@/components/SoundToggle'
 import { ThemeSelector } from '@/components/ThemeSelector'
+import { WelcomeWizard } from '@/components/WelcomeWizard'
 import { playCelebrationSound, playAchievementSound, playUndoSound } from '@/lib/sounds'
 import { applyTheme } from '@/lib/themes'
 import { 
@@ -48,6 +49,7 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useKV<boolean>('dark-mode', false)
   const [soundEnabled, setSoundEnabled] = useKV<boolean>('sound-enabled', true)
   const [colorTheme, setColorTheme] = useKV<string>('color-theme', 'default')
+  const [wizardCompleted, setWizardCompleted] = useKV<boolean>('wizard-completed', false)
   
   // Store for undo functionality
   const undoDataRef = useRef<{
@@ -76,6 +78,9 @@ function App() {
   const safeWeeklyCompetitions = weeklyCompetitions || []
 
   const expandedEvents = getExpandedEvents(safeEvents)
+  
+  // Show wizard on first run (no members and wizard not completed)
+  const showWizard = !wizardCompleted && safeMembers.length === 0
 
   // Apply dark mode class to document
   useEffect(() => {
@@ -121,6 +126,26 @@ function App() {
 
   const handleChangeTheme = (themeId: string) => {
     setColorTheme(themeId)
+  }
+
+  const handleWizardComplete = (newMembers: FamilyMember[], newChores: Chore[]) => {
+    // Add all members
+    setMembers(newMembers)
+    
+    // Add all chores
+    setChores(newChores)
+    
+    // Mark wizard as completed
+    setWizardCompleted(true)
+    
+    toast.success(`Welcome to Family Organizer! 🎉`, {
+      description: `${newMembers.length} member${newMembers.length !== 1 ? 's' : ''} and ${newChores.length} chore${newChores.length !== 1 ? 's' : ''} added.`,
+    })
+  }
+
+  const handleWizardSkip = () => {
+    setWizardCompleted(true)
+    toast.info('Setup skipped. You can add family members from the Manage tab.')
   }
 
   useEffect(() => {
@@ -635,6 +660,13 @@ function App() {
         achievement={unlockedAchievement} 
         onComplete={() => setUnlockedAchievement(null)} 
       />
+      
+      <WelcomeWizard
+        open={showWizard}
+        onComplete={handleWizardComplete}
+        onSkip={handleWizardSkip}
+      />
+      
       <Toaster position="top-center" richColors />
     </div>
   )

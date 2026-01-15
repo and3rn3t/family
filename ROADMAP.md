@@ -44,7 +44,7 @@ Transform daily household management from a chore into a collaborative family ga
 - [ ] **Chore notes** - Add instructions or tips to each chore
 
 ### 1.3 First-Run Experience
-- [ ] **Welcome wizard** - Guide new families through setup
+- [x] **Welcome wizard** - Guide new families through setup ✅
 - [ ] **Sample data option** - Start with example family to explore
 - [ ] **Quick start templates** - "Family of 4" preset chore lists
 
