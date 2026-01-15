@@ -401,6 +401,27 @@ Hard   → ×3
 - Auto-hiding cursor support
 - Full-screen Chromium compatibility
 
+### Progressive Web App (PWA)
+
+**Installable App Experience**:
+- Install directly from browser to device home screen
+- Works offline after first visit
+- Native app-like experience (no browser chrome)
+- Automatic updates when online
+
+**Supported Platforms**:
+- Android (Chrome, Edge)
+- iOS/iPadOS (Safari - Add to Home Screen)
+- Windows (Chrome, Edge)
+- macOS (Chrome, Edge)
+- Linux (Chrome)
+
+**Features**:
+- Custom app icon with maskable variant
+- Splash screen on launch
+- App shortcuts for quick access to Dashboard/Schedule
+- Cached fonts for offline use
+
 ### Responsive Design
 
 **Breakpoints**:

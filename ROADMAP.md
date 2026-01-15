@@ -265,6 +265,7 @@ Transform daily household management from a chore into a collaborative family ga
 
 ### 10.1 Reliability & Error Handling
 - [x] **Error boundaries** - Graceful error handling with recovery ✅
+- [x] **PWA manifest** - Installable app with offline support ✅
 - [ ] **Data validation** - Ensure data integrity on load/save
 - [ ] **Storage quota check** - Warn when localStorage is getting full
 - [ ] **Crash recovery** - Recover from corrupted localStorage
