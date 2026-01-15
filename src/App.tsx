@@ -729,7 +729,7 @@ function App() {
         settings={{
           isDarkMode,
           soundEnabled,
-          theme: currentTheme,
+          theme: colorTheme,
         }}
         onImport={handleImportData}
       />
