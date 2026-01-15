@@ -41,6 +41,7 @@ import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
 import { ChoreWheelDialog } from '@/components/ChoreWheelDialog'
 import { DataBackupDialog } from '@/components/DataBackupDialog'
 import { ViewModeToggle, ViewOnlyBanner } from '@/components/ViewModeToggle'
+import { StorageWarning } from '@/components/StorageWarning'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
 import { BackupData } from '@/lib/data-backup'
@@ -769,6 +770,9 @@ function App() {
       
       {/* View-only mode indicator */}
       {isViewOnly && <ViewOnlyBanner />}
+      
+      {/* Storage warning */}
+      <StorageWarning />
     </div>
   )
 }

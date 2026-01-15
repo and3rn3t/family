@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FamilyMember, Chore } from '@/lib/types'
 import { MemberCard } from './MemberCard'
+import { DataHealthCard } from './DataHealthCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -113,6 +114,9 @@ export function ManagementView({
           })}
         </div>
       )}
+
+      {/* Data Health */}
+      {!isViewOnly && <DataHealthCard />}
 
       {/* View-Only Mode Settings */}
       {!isViewOnly && (

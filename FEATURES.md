@@ -418,6 +418,36 @@ Hard   → ×3
 - Prevents children from accidentally modifying data
 - PIN can be removed at any time
 
+### Data Health & Storage
+
+**Storage Monitoring**:
+- Real-time storage usage tracking
+- Warning when storage exceeds 70% capacity
+- Critical alert when storage exceeds 90%
+- Automatic cleanup of temporary data
+- Storage breakdown by data type
+
+**Data Validation**:
+- Validates all data on load
+- Fixes missing/invalid fields automatically
+- Removes orphaned data (chores without members)
+- Prevents data corruption
+
+**Data Health Dashboard** (Management tab):
+- Visual storage usage indicator
+- Health status (Healthy/Warning/Critical)
+- Storage breakdown by key
+- One-click cleanup button
+
+### Security Features
+
+**Encryption Utilities**:
+- AES-256-GCM encryption for sensitive data
+- Password-based key derivation (PBKDF2)
+- Hash functions for PIN storage
+- Simple obfuscation for less sensitive data
+- Web Crypto API (browser-native, no dependencies)
+
 ### Progressive Web App (PWA)
 
 **Installable App Experience**:
