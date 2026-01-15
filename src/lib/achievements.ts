@@ -137,6 +137,32 @@ export const ACHIEVEMENTS: Achievement[] = [
       return Object.values(member.monthlyStars).some((stars) => stars >= 50)
     },
   },
+  // Mystery bonus achievements
+  {
+    id: 'lucky-star',
+    title: 'Lucky Star',
+    description: 'Complete a chore on a Mystery Bonus Day',
+    icon: 'Sparkle',
+    rarity: 'common',
+    condition: (member) => (member.mysteryBonusCompletions || 0) >= 1,
+  },
+  {
+    id: 'fortune-finder',
+    title: 'Fortune Finder',
+    description: 'Complete 5 chores on Mystery Bonus Days',
+    icon: 'Sparkle',
+    rarity: 'rare',
+    condition: (member) => (member.mysteryBonusCompletions || 0) >= 5,
+  },
+  {
+    id: 'mystery-master',
+    title: 'Mystery Master',
+    description: 'Complete 15 chores on Mystery Bonus Days',
+    icon: 'Sparkle',
+    rarity: 'epic',
+    condition: (member) => (member.mysteryBonusCompletions || 0) >= 15,
+  },
+
   // Streak achievements
   {
     id: 'streak-starter',

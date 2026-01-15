@@ -11,6 +11,7 @@ export interface FamilyMember {
   currentStreak?: number
   bestStreak?: number
   lastCompletionDate?: string // YYYY-MM-DD format for streak tracking
+  mysteryBonusCompletions?: number // Track chores completed on mystery bonus days
 }
 
 export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'

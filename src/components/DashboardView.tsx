@@ -3,9 +3,10 @@ import { MemberCard } from './MemberCard'
 import { ChoreCard } from './ChoreCard'
 import { Leaderboard } from './Leaderboard'
 import { Clock } from './Clock'
+import { MysteryBonusBanner } from './MysteryBonusBanner'
 import { Button } from '@/components/ui/button'
 import { Plus } from '@phosphor-icons/react'
-import { isChoreComplete } from '@/lib/helpers'
+import { isChoreComplete, isMysteryBonusDay } from '@/lib/helpers'
 
 interface DashboardViewProps {
   members: FamilyMember[]
@@ -47,12 +48,19 @@ export function DashboardView({
     )
   }
 
+  const showMysteryBonus = isMysteryBonusDay()
+
   return (
     <div className="space-y-8">
       {/* Clock Display - Glanceable from across the room */}
       <div className="flex justify-center py-4">
         <Clock showDate={true} />
       </div>
+
+      {/* Mystery Bonus Banner - Shows on lucky days */}
+      {showMysteryBonus && (
+        <MysteryBonusBanner />
+      )}
 
       <div className="flex items-center justify-between">
         <div>

@@ -406,3 +406,61 @@ export const getRotationLabel = (rotation: string): string => {
   }
   return labels[rotation] || rotation
 }
+
+// ============================================
+// Mystery Bonus Functions
+// ============================================
+
+export interface MysteryBonusState {
+  activeDate: string | null // Date key when mystery bonus is active
+  lastCheckedDate: string // Last date we checked for mystery bonus
+}
+
+const MYSTERY_BONUS_CHANCE = 0.15 // 15% chance each day
+
+/**
+ * Generates a deterministic "random" value for a given date
+ * This ensures the same date always produces the same result
+ */
+export const getDateSeed = (dateKey: string): number => {
+  let hash = 0
+  for (let i = 0; i < dateKey.length; i++) {
+    const char = dateKey.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  // Normalize to 0-1 range using a simple approach
+  return Math.abs(hash % 1000) / 1000
+}
+
+/**
+ * Check if today is a mystery bonus day
+ * Uses deterministic randomness so all family members see the same result
+ */
+export const isMysteryBonusDay = (dateKey?: string): boolean => {
+  const today = dateKey || getTodayDateKey()
+  const seed = getDateSeed(today + '-mystery-bonus')
+  return seed < MYSTERY_BONUS_CHANCE
+}
+
+/**
+ * Get the mystery bonus multiplier (2x on bonus days, 1x otherwise)
+ */
+export const getMysteryBonusMultiplier = (): number => {
+  return isMysteryBonusDay() ? 2 : 1
+}
+
+/**
+ * Get a fun message for mystery bonus days
+ */
+export const getMysteryBonusMessage = (): string => {
+  const messages = [
+    "✨ It's a Mystery Bonus Day! Double stars on all chores!",
+    "🎉 Lucky day! All chores are worth 2x stars today!",
+    "⭐ Double Star Day activated! Make it count!",
+    "🌟 Mystery Bonus unlocked! Every chore earns double!",
+    "💫 Today's your lucky day - 2x stars on everything!",
+  ]
+  const seed = getDateSeed(getTodayDateKey())
+  return messages[Math.floor(seed * messages.length)]
+}

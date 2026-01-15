@@ -25,6 +25,8 @@ import {
   getTodayDateKey,
   shouldRotateChore,
   rotateChore,
+  isMysteryBonusDay,
+  getMysteryBonusMultiplier,
 } from '@/lib/helpers'
 import { checkNewAchievements } from '@/lib/achievements'
 import { DashboardView } from '@/components/DashboardView'
@@ -363,7 +365,11 @@ function App() {
     // Calculate streak
     const { currentStreak, bestStreak } = calculateNewStreak(member)
     const streakBonus = getStreakBonus(currentStreak)
-    const totalStarsEarned = baseStars + streakBonus
+    
+    // Apply mystery bonus multiplier (2x on mystery days)
+    const mysteryMultiplier = getMysteryBonusMultiplier()
+    const totalStarsEarned = (baseStars + streakBonus) * mysteryMultiplier
+    const isMysteryDay = mysteryMultiplier > 1
     
     // Store undo data before making changes
     undoDataRef.current = {
@@ -402,6 +408,9 @@ function App() {
             currentStreak,
             bestStreak,
             lastCompletionDate: todayKey,
+            mysteryBonusCompletions: isMysteryDay 
+              ? (m.mysteryBonusCompletions || 0) + 1 
+              : (m.mysteryBonusCompletions || 0),
           }
 
           const newAchievements = checkNewAchievements(updatedMember, safeChores, safeCompetitions)
@@ -435,16 +444,25 @@ function App() {
     setShowCelebration(true)
     setTimeout(() => setShowCelebration(false), 1000)
     
-    // Build toast message with streak info
+    // Build toast message with streak and mystery bonus info
     let description = 'Great job! Keep up the amazing work!'
-    if (streakBonus > 0) {
+    if (isMysteryDay) {
+      description = `✨ Mystery Bonus Day! Double stars!`
+      if (streakBonus > 0) {
+        description = `✨ 2x Mystery Bonus + 🔥 ${currentStreak}-day streak!`
+      }
+    } else if (streakBonus > 0) {
       description = `🔥 ${currentStreak}-day streak! +${streakBonus} bonus stars!`
     } else if (currentStreak > 1) {
       description = `🔥 ${currentStreak}-day streak! Keep it going!`
     }
     
     // Show toast with undo action
-    toast.success(`Chore completed! +${totalStarsEarned} ⭐`, {
+    const toastTitle = isMysteryDay 
+      ? `✨ Chore completed! +${totalStarsEarned} ⭐ (2x bonus!)`
+      : `Chore completed! +${totalStarsEarned} ⭐`
+    
+    toast.success(toastTitle, {
       description,
       duration: 10000, // 10 second window for undo
       action: {
