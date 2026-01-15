@@ -263,7 +263,13 @@ Transform daily household management from a chore into a collaborative family ga
 
 *Under-the-hood enhancements*
 
-### 10.1 Security & Privacy
+### 10.1 Reliability & Error Handling
+- [x] **Error boundaries** - Graceful error handling with recovery ✅
+- [ ] **Data validation** - Ensure data integrity on load/save
+- [ ] **Storage quota check** - Warn when localStorage is getting full
+- [ ] **Crash recovery** - Recover from corrupted localStorage
+
+### 10.2 Security & Privacy
 - [ ] **PIN protection** - Lock management features
 - [ ] **Admin mode** - Parent-only settings
 - [ ] **View-only mode** - Kiosk shows but can't edit

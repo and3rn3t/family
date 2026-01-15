@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { ChartBar, Calendar, Users, Trophy, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { FamilyMember, Chore, MonthlyCompetition, WeeklyCompetition, Achievement, Event } from '@/lib/types'
+import { ErrorBoundary, SectionErrorBoundary } from '@/components/ErrorBoundary'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SoundToggle } from '@/components/SoundToggle'
 import { ThemeSelector } from '@/components/ThemeSelector'
@@ -594,47 +595,55 @@ function App() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <DashboardView
-              members={safeMembers}
-              chores={safeChores}
-              onCompleteChore={handleCompleteChore}
-              onEditChore={handleEditChore}
-              onDeleteChore={handleDeleteChore}
-              onEditMember={handleEditMember}
-              onDeleteMember={handleDeleteMember}
-              onAddChore={handleAddChore}
-              onSpinWheel={handleOpenWheel}
-              onViewAchievements={handleViewAchievements}
-            />
+            <SectionErrorBoundary section="Dashboard">
+              <DashboardView
+                members={safeMembers}
+                chores={safeChores}
+                onCompleteChore={handleCompleteChore}
+                onEditChore={handleEditChore}
+                onDeleteChore={handleDeleteChore}
+                onEditMember={handleEditMember}
+                onDeleteMember={handleDeleteMember}
+                onAddChore={handleAddChore}
+                onSpinWheel={handleOpenWheel}
+                onViewAchievements={handleViewAchievements}
+              />
+            </SectionErrorBoundary>
           </TabsContent>
 
           <TabsContent value="competition" className="space-y-6">
-            <CompetitionView 
-              members={safeMembers} 
-              competitions={safeCompetitions}
-              weeklyCompetitions={safeWeeklyCompetitions}
-            />
+            <SectionErrorBoundary section="Competition">
+              <CompetitionView 
+                members={safeMembers} 
+                competitions={safeCompetitions}
+                weeklyCompetitions={safeWeeklyCompetitions}
+              />
+            </SectionErrorBoundary>
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-6">
-            <ScheduleView 
-              members={safeMembers} 
-              chores={safeChores}
-              events={expandedEvents}
-              onAddEvent={handleAddEvent}
-              onEditEvent={handleEditEvent}
-              onDeleteEvent={handleDeleteEvent}
-            />
+            <SectionErrorBoundary section="Schedule">
+              <ScheduleView 
+                members={safeMembers} 
+                chores={safeChores}
+                events={expandedEvents}
+                onAddEvent={handleAddEvent}
+                onEditEvent={handleEditEvent}
+                onDeleteEvent={handleDeleteEvent}
+              />
+            </SectionErrorBoundary>
           </TabsContent>
 
           <TabsContent value="manage" className="space-y-6">
-            <ManagementView
-              members={safeMembers}
-              chores={safeChores}
-              onAddMember={handleAddMember}
-              onEditMember={handleEditMember}
-              onDeleteMember={handleDeleteMember}
-            />
+            <SectionErrorBoundary section="Management">
+              <ManagementView
+                members={safeMembers}
+                chores={safeChores}
+                onAddMember={handleAddMember}
+                onEditMember={handleEditMember}
+                onDeleteMember={handleDeleteMember}
+              />
+            </SectionErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>
