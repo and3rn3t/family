@@ -186,7 +186,7 @@ Transform daily household management from a chore into a collaborative family ga
 *Keep it exciting and fresh!*
 
 ### 7.1 Random & Surprise Elements
-- [ ] **Chore wheel** - Spin to randomly assign
+- [x] **Chore wheel** - Spin to randomly assign ✅
 - [x] **Mystery bonus** - Random double-star days ✅
 - [ ] **Daily challenges** - Special one-day missions
 - [ ] **Lucky draw** - Weekly prize drawing for participants

@@ -88,3 +88,18 @@ export function playSuccessSound() {
     { freq: 1108.73, duration: 0.15, delay: 0.1 },
   ], 0.2)
 }
+
+// Wheel tick sound - clicking as wheel spins
+export function playWheelTickSound() {
+  playTone(1200, 0.02, 'square', 0.1)
+}
+
+// Wheel result sound - dramatic reveal
+export function playWheelResultSound() {
+  playSequence([
+    { freq: 523.25, duration: 0.1, delay: 0 },     // C5
+    { freq: 523.25, duration: 0.1, delay: 0.12 },  // C5
+    { freq: 783.99, duration: 0.3, delay: 0.24 },  // G5
+    { freq: 1046.50, duration: 0.4, delay: 0.54 }, // C6
+  ], 0.3)
+}

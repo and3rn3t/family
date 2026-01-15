@@ -37,6 +37,7 @@ import { MemberDialog } from '@/components/MemberDialog'
 import { ChoreDialog } from '@/components/ChoreDialog'
 import { EventDialog } from '@/components/EventDialog'
 import { MemberAchievementsDialog } from '@/components/MemberAchievementsDialog'
+import { ChoreWheelDialog } from '@/components/ChoreWheelDialog'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
 
@@ -66,6 +67,7 @@ function App() {
   const [choreDialogOpen, setChoreDialogOpen] = useState(false)
   const [eventDialogOpen, setEventDialogOpen] = useState(false)
   const [achievementsDialogOpen, setAchievementsDialogOpen] = useState(false)
+  const [wheelDialogOpen, setWheelDialogOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<FamilyMember | undefined>()
   const [viewingMemberAchievements, setViewingMemberAchievements] = useState<FamilyMember | null>(null)
   const [editingChore, setEditingChore] = useState<Chore | undefined>()
@@ -538,6 +540,10 @@ function App() {
     setChoreDialogOpen(true)
   }
 
+  const handleOpenWheel = () => {
+    setWheelDialogOpen(true)
+  }
+
   const handleAddEvent = () => {
     setEditingEvent(undefined)
     setEventDialogOpen(true)
@@ -597,6 +603,7 @@ function App() {
               onEditMember={handleEditMember}
               onDeleteMember={handleDeleteMember}
               onAddChore={handleAddChore}
+              onSpinWheel={handleOpenWheel}
               onViewAchievements={handleViewAchievements}
             />
           </TabsContent>
@@ -651,6 +658,13 @@ function App() {
           if (!open) setEditingChore(undefined)
         }}
         onSave={handleSaveChore}
+      />
+
+      <ChoreWheelDialog
+        open={wheelDialogOpen}
+        onOpenChange={setWheelDialogOpen}
+        members={safeMembers}
+        soundEnabled={soundEnabled}
       />
 
       <EventDialog

@@ -5,7 +5,7 @@ import { Leaderboard } from './Leaderboard'
 import { Clock } from './Clock'
 import { MysteryBonusBanner } from './MysteryBonusBanner'
 import { Button } from '@/components/ui/button'
-import { Plus } from '@phosphor-icons/react'
+import { Plus, CircleNotch } from '@phosphor-icons/react'
 import { isChoreComplete, isMysteryBonusDay } from '@/lib/helpers'
 
 interface DashboardViewProps {
@@ -17,6 +17,7 @@ interface DashboardViewProps {
   onEditMember: (member: FamilyMember) => void
   onDeleteMember: (memberId: string) => void
   onAddChore: () => void
+  onSpinWheel: () => void
   onViewAchievements?: (member: FamilyMember) => void
 }
 
@@ -29,6 +30,7 @@ export function DashboardView({
   onEditMember,
   onDeleteMember,
   onAddChore,
+  onSpinWheel,
   onViewAchievements,
 }: DashboardViewProps) {
   const totalChores = chores.length
@@ -69,10 +71,18 @@ export function DashboardView({
             {overallProgress}% complete • {completedChores} of {totalChores} chores done
           </p>
         </div>
-        <Button onClick={onAddChore} size="lg">
-          <Plus className="h-5 w-5 mr-2" />
-          Add Chore
-        </Button>
+        <div className="flex gap-2">
+          {members.length >= 2 && (
+            <Button onClick={onSpinWheel} size="lg" variant="outline">
+              <CircleNotch className="h-5 w-5 mr-2" />
+              Spin Wheel
+            </Button>
+          )}
+          <Button onClick={onAddChore} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Add Chore
+          </Button>
+        </div>
       </div>
 
       <Leaderboard members={members} />

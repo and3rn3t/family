@@ -1,4 +1,13 @@
-import { ChoreFrequency, ChoreDifficulty, Chore, FamilyMember, MonthlyCompetition, WeeklyCompetition, Event, RecurrenceType, DayOfWeek } from './types'
+import {
+  Chore,
+  ChoreDifficulty,
+  ChoreFrequency,
+  DayOfWeek,
+  Event,
+  FamilyMember,
+  MonthlyCompetition,
+  WeeklyCompetition,
+} from './types'
 
 export const getFrequencyLabel = (frequency: ChoreFrequency): string => {
   const labels: Record<ChoreFrequency, string> = {
@@ -22,19 +31,19 @@ export const getFrequencyDays = (frequency: ChoreFrequency): number => {
 
 export const isChoreOverdue = (chore: Chore): boolean => {
   if (!chore.lastCompleted) return false
-  
+
   const daysSinceCompletion = (Date.now() - chore.lastCompleted) / (1000 * 60 * 60 * 24)
   const frequencyDays = getFrequencyDays(chore.frequency)
-  
+
   return daysSinceCompletion > frequencyDays
 }
 
 export const isChoreComplete = (chore: Chore): boolean => {
   if (!chore.lastCompleted) return false
-  
+
   const daysSinceCompletion = (Date.now() - chore.lastCompleted) / (1000 * 60 * 60 * 24)
   const frequencyDays = getFrequencyDays(chore.frequency)
-  
+
   return daysSinceCompletion <= frequencyDays
 }
 
@@ -87,7 +96,10 @@ export const getDifficultyEmoji = (difficulty: ChoreDifficulty): string => {
   return emojis[difficulty]
 }
 
-export const getStarsForChore = (frequency: ChoreFrequency, difficulty?: ChoreDifficulty): number => {
+export const getStarsForChore = (
+  frequency: ChoreFrequency,
+  difficulty?: ChoreDifficulty
+): number => {
   const baseStars = getBaseStarsForChore(frequency)
   const multiplier = getDifficultyMultiplier(difficulty || 'medium')
   return baseStars * multiplier
@@ -174,11 +186,11 @@ export const getWeekLabel = (weekKey: string): string => {
   const weekNumber = parseInt(weekStr)
   const startDate = getWeekStartDate(weekKey)
   const endDate = getWeekEndDate(weekKey)
-  
+
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
-  
+
   return `Week ${weekNumber}, ${year} (${formatDate(startDate)} - ${formatDate(endDate)})`
 }
 
@@ -221,7 +233,15 @@ export const finalizeWeeklyCompetition = (
 }
 
 export const getDayOfWeekFromDate = (date: Date): DayOfWeek => {
-  const days: DayOfWeek[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  const days: DayOfWeek[] = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ]
   return days[date.getDay()]
 }
 
@@ -240,7 +260,7 @@ export const generateRecurringEventInstances = (
 
   const instances: Event[] = []
   const eventDate = new Date(baseEvent.date)
-  const maxEndDate = baseEvent.recurrenceEndDate 
+  const maxEndDate = baseEvent.recurrenceEndDate
     ? new Date(Math.min(baseEvent.recurrenceEndDate, endDate.getTime()))
     : endDate
 
@@ -249,10 +269,13 @@ export const generateRecurringEventInstances = (
   while (currentDate <= maxEndDate) {
     if (currentDate >= startDate) {
       const currentDayOfWeek = getDayOfWeekFromDate(currentDate)
-      
-      const shouldInclude = baseEvent.recurrence === 'weekly' && baseEvent.recurringDays && baseEvent.recurringDays.length > 0
-        ? baseEvent.recurringDays.includes(currentDayOfWeek)
-        : true
+
+      const shouldInclude =
+        baseEvent.recurrence === 'weekly' &&
+        baseEvent.recurringDays &&
+        baseEvent.recurringDays.length > 0
+          ? baseEvent.recurringDays.includes(currentDayOfWeek)
+          : true
 
       if (shouldInclude) {
         instances.push({
@@ -312,7 +335,9 @@ export const getYesterdayDateKey = (): string => {
   return `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
 }
 
-export const calculateNewStreak = (member: FamilyMember): { currentStreak: number; bestStreak: number } => {
+export const calculateNewStreak = (
+  member: FamilyMember
+): { currentStreak: number; bestStreak: number } => {
   const today = getTodayDateKey()
   const yesterday = getYesterdayDateKey()
   const lastCompletionDate = member.lastCompletionDate
@@ -343,8 +368,8 @@ export const getStreakBonus = (streak: number): number => {
   // Bonus stars based on streak length
   if (streak >= 30) return 5 // 30+ day streak
   if (streak >= 14) return 3 // 2 week streak
-  if (streak >= 7) return 2  // 1 week streak
-  if (streak >= 3) return 1  // 3 day streak
+  if (streak >= 7) return 2 // 1 week streak
+  if (streak >= 3) return 1 // 3 day streak
   return 0 // No bonus for less than 3 days
 }
 
@@ -363,26 +388,26 @@ export const getStreakLabel = (streak: number): string => {
 export const shouldRotateChore = (chore: Chore): boolean => {
   if (!chore.rotation || chore.rotation === 'none') return false
   if (!chore.rotationMembers || chore.rotationMembers.length < 2) return false
-  
+
   const lastRotated = chore.lastRotated || chore.createdAt
   const now = Date.now()
   const daysSinceRotation = (now - lastRotated) / (1000 * 60 * 60 * 24)
-  
+
   if (chore.rotation === 'weekly') {
     return daysSinceRotation >= 7
   } else if (chore.rotation === 'monthly') {
     return daysSinceRotation >= 30
   }
-  
+
   return false
 }
 
 export const getNextRotationMember = (chore: Chore): string | null => {
   if (!chore.rotationMembers || chore.rotationMembers.length < 2) return null
-  
+
   const currentIndex = chore.rotationMembers.indexOf(chore.assignedTo)
   if (currentIndex === -1) return chore.rotationMembers[0]
-  
+
   const nextIndex = (currentIndex + 1) % chore.rotationMembers.length
   return chore.rotationMembers[nextIndex]
 }
@@ -390,7 +415,7 @@ export const getNextRotationMember = (chore: Chore): string | null => {
 export const rotateChore = (chore: Chore): Chore => {
   const nextMember = getNextRotationMember(chore)
   if (!nextMember) return chore
-  
+
   return {
     ...chore,
     assignedTo: nextMember,
@@ -426,7 +451,7 @@ export const getDateSeed = (dateKey: string): number => {
   let hash = 0
   for (let i = 0; i < dateKey.length; i++) {
     const char = dateKey.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash = hash & hash // Convert to 32bit integer
   }
   // Normalize to 0-1 range using a simple approach
@@ -456,9 +481,9 @@ export const getMysteryBonusMultiplier = (): number => {
 export const getMysteryBonusMessage = (): string => {
   const messages = [
     "✨ It's a Mystery Bonus Day! Double stars on all chores!",
-    "🎉 Lucky day! All chores are worth 2x stars today!",
-    "⭐ Double Star Day activated! Make it count!",
-    "🌟 Mystery Bonus unlocked! Every chore earns double!",
+    '🎉 Lucky day! All chores are worth 2x stars today!',
+    '⭐ Double Star Day activated! Make it count!',
+    '🌟 Mystery Bonus unlocked! Every chore earns double!',
     "💫 Today's your lucky day - 2x stars on everything!",
   ]
   const seed = getDateSeed(getTodayDateKey())

@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Dialog,
   DialogContent,
@@ -7,10 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -18,16 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { CHORE_TEMPLATES, ChoreTemplate, TEMPLATE_CATEGORIES } from '@/lib/chore-templates'
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { Chore, ChoreFrequency, ChoreDifficulty, FamilyMember, RotationFrequency } from '@/lib/types'
-import { getFrequencyLabel, getStarsForChore, getRotationLabel, getDifficultyLabel, getDifficultyEmoji } from '@/lib/helpers'
-import { CHORE_TEMPLATES, TEMPLATE_CATEGORIES, ChoreTemplate } from '@/lib/chore-templates'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Star, CaretDown, Lightning, ArrowsClockwise } from '@phosphor-icons/react'
+  getDifficultyEmoji,
+  getDifficultyLabel,
+  getFrequencyLabel,
+  getRotationLabel,
+  getStarsForChore,
+} from '@/lib/helpers'
+import {
+  Chore,
+  ChoreDifficulty,
+  ChoreFrequency,
+  FamilyMember,
+  RotationFrequency,
+} from '@/lib/types'
+import { ArrowsClockwise, CaretDown, Lightning, Star } from '@phosphor-icons/react'
+import { useEffect, useState } from 'react'
 
 interface ChoreDialogProps {
   chore?: Chore
@@ -46,7 +54,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
   const [description, setDescription] = useState(chore?.description || '')
   const [frequency, setFrequency] = useState<ChoreFrequency>(chore?.frequency || 'weekly')
   const [difficulty, setDifficulty] = useState<ChoreDifficulty>(chore?.difficulty || 'medium')
-  const [assignedTo, setAssignedTo] = useState(chore?.assignedTo || (members[0]?.id || ''))
+  const [assignedTo, setAssignedTo] = useState(chore?.assignedTo || members[0]?.id || '')
   const [showTemplates, setShowTemplates] = useState(false)
   const [templateCategory, setTemplateCategory] = useState('all')
   const [rotation, setRotation] = useState<RotationFrequency>(chore?.rotation || 'none')
@@ -59,7 +67,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       setDescription(chore?.description || '')
       setFrequency(chore?.frequency || 'weekly')
       setDifficulty(chore?.difficulty || 'medium')
-      setAssignedTo(chore?.assignedTo || (members[0]?.id || ''))
+      setAssignedTo(chore?.assignedTo || members[0]?.id || '')
       setShowTemplates(false)
       setRotation(chore?.rotation || 'none')
       setRotationMembers(chore?.rotationMembers || [])
@@ -68,15 +76,14 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
 
   const toggleRotationMember = (memberId: string) => {
     setRotationMembers((current) =>
-      current.includes(memberId)
-        ? current.filter((id) => id !== memberId)
-        : [...current, memberId]
+      current.includes(memberId) ? current.filter((id) => id !== memberId) : [...current, memberId]
     )
   }
 
-  const filteredTemplates = templateCategory === 'all' 
-    ? CHORE_TEMPLATES 
-    : CHORE_TEMPLATES.filter((t) => t.category === templateCategory)
+  const filteredTemplates =
+    templateCategory === 'all'
+      ? CHORE_TEMPLATES
+      : CHORE_TEMPLATES.filter((t) => t.category === templateCategory)
 
   const handleSelectTemplate = (template: ChoreTemplate) => {
     setTitle(template.title)
@@ -88,7 +95,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
 
   const handleSave = () => {
     if (!title.trim() || !assignedTo) return
-    
+
     onSave({
       id: chore?.id,
       title: title.trim(),
@@ -98,23 +105,24 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
       assignedTo,
       lastCompleted: chore?.lastCompleted,
       rotation: rotation !== 'none' ? rotation : undefined,
-      rotationMembers: rotation !== 'none' && rotationMembers.length > 1 ? rotationMembers : undefined,
+      rotationMembers:
+        rotation !== 'none' && rotationMembers.length > 1 ? rotationMembers : undefined,
       lastRotated: chore?.lastRotated,
     })
-    
+
     onOpenChange(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{chore ? 'Edit' : 'Add'} Chore</DialogTitle>
           <DialogDescription>
             {chore ? 'Update' : 'Create a new'} household chore.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
           {/* Quick Templates Section - Only show when adding new chore */}
           {!chore && (
@@ -125,7 +133,9 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                     <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
                     <span>Quick Templates</span>
                   </div>
-                  <CaretDown className={`h-4 w-4 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
+                  <CaretDown
+                    className={`h-4 w-4 transition-transform ${showTemplates ? 'rotate-180' : ''}`}
+                  />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-3 space-y-3">
@@ -141,19 +151,23 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+                <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto pr-1">
                   {filteredTemplates.map((template, idx) => (
                     <button
                       key={`${template.title}-${idx}`}
                       onClick={() => handleSelectTemplate(template)}
-                      className="flex items-center justify-between p-2 text-left text-sm rounded-md border hover:bg-accent hover:text-accent-foreground transition-colors"
+                      className="hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md border p-2 text-left text-sm transition-colors"
                     >
-                      <span className="font-medium truncate">{template.title}</span>
-                      <div className="flex items-center gap-2 text-muted-foreground shrink-0 ml-2">
-                        <span className="text-xs">{getDifficultyEmoji(template.difficulty || 'medium')}</span>
+                      <span className="truncate font-medium">{template.title}</span>
+                      <div className="text-muted-foreground ml-2 flex shrink-0 items-center gap-2">
+                        <span className="text-xs">
+                          {getDifficultyEmoji(template.difficulty || 'medium')}
+                        </span>
                         <div className="flex items-center gap-1">
                           <Star weight="fill" className="h-3 w-3 text-amber-500" />
-                          <span className="text-xs">{getStarsForChore(template.frequency, template.difficulty)}</span>
+                          <span className="text-xs">
+                            {getStarsForChore(template.frequency, template.difficulty)}
+                          </span>
                         </div>
                       </div>
                     </button>
@@ -172,7 +186,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               placeholder="e.g., Take out trash"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="description">Description (optional)</Label>
             <Textarea
@@ -183,7 +197,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               rows={3}
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="frequency">Frequency</Label>
@@ -200,7 +214,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="difficulty">Difficulty</Label>
               <Select value={difficulty} onValueChange={(v) => setDifficulty(v as ChoreDifficulty)}>
@@ -210,27 +224,30 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                 <SelectContent>
                   {DIFFICULTIES.map((diff) => (
                     <SelectItem key={diff} value={diff}>
-                      <span>{getDifficultyEmoji(diff)} {getDifficultyLabel(diff)}</span>
+                      <span>
+                        {getDifficultyEmoji(diff)} {getDifficultyLabel(diff)}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
-          
-          <div className="p-3 rounded-lg bg-secondary/10 border">
+
+          <div className="bg-secondary/10 rounded-lg border p-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Stars earned:</span>
+              <span className="text-muted-foreground text-sm">Stars earned:</span>
               <div className="flex items-center gap-1">
-                <Star weight="fill" className="h-5 w-5 text-secondary" />
+                <Star weight="fill" className="text-secondary h-5 w-5" />
                 <span className="text-lg font-bold">{getStarsForChore(frequency, difficulty)}</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {getDifficultyEmoji(difficulty)} {getDifficultyLabel(difficulty)} chores earn {difficulty === 'easy' ? '1x' : difficulty === 'medium' ? '2x' : '3x'} stars
+            <p className="text-muted-foreground mt-1 text-xs">
+              {getDifficultyEmoji(difficulty)} {getDifficultyLabel(difficulty)} chores earn{' '}
+              {difficulty === 'easy' ? '1x' : difficulty === 'medium' ? '2x' : '3x'} stars
             </p>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="assigned">Assign To</Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
@@ -253,7 +270,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               <CollapsibleTrigger asChild>
                 <Button variant="outline" className="w-full justify-between" type="button">
                   <div className="flex items-center gap-2">
-                    <ArrowsClockwise className="h-4 w-4 text-muted-foreground" />
+                    <ArrowsClockwise className="text-muted-foreground h-4 w-4" />
                     <span>Rotation Settings</span>
                   </div>
                   <CaretDown className="h-4 w-4" />
@@ -262,7 +279,10 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
               <CollapsibleContent className="mt-3 space-y-3">
                 <div className="space-y-2">
                   <Label>Rotation Frequency</Label>
-                  <Select value={rotation} onValueChange={(v) => setRotation(v as RotationFrequency)}>
+                  <Select
+                    value={rotation}
+                    onValueChange={(v) => setRotation(v as RotationFrequency)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -275,11 +295,11 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {rotation !== 'none' && (
                   <div className="space-y-2">
                     <Label>Rotate Between</Label>
-                    <p className="text-xs text-muted-foreground mb-2">
+                    <p className="text-muted-foreground mb-2 text-xs">
                       Select 2 or more members to rotate this chore between
                     </p>
                     <div className="space-y-2">
@@ -292,7 +312,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
                           />
                           <label
                             htmlFor={`rotate-${member.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
                             {member.name}
                           </label>
@@ -310,7 +330,7 @@ export function ChoreDialog({ chore, members, open, onOpenChange, onSave }: Chor
             </Collapsible>
           )}
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
