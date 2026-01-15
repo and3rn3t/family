@@ -183,12 +183,17 @@ Family Organizer is a collaborative household management application designed to
    - **Monthly Stars**: Current calendar month
    - **Weekly Stars**: Current calendar week
 
-**Star Values**:
+**Star Values** (base × difficulty multiplier):
 ```
-Daily Chore    → 1 ⭐
-Weekly Chore   → 3 ⭐
-Bi-weekly Chore → 5 ⭐
-Monthly Chore  → 10 ⭐
+Daily Chore    → 1 ⭐ base
+Weekly Chore   → 3 ⭐ base
+Bi-weekly Chore → 5 ⭐ base
+Monthly Chore  → 10 ⭐ base
+
+Difficulty Multipliers:
+Easy   → ×1
+Medium → ×2  
+Hard   → ×3
 ```
 
 **Display Locations**:
@@ -196,6 +201,24 @@ Monthly Chore  → 10 ⭐
 - Leaderboard rankings
 - Competition standings
 - Achievement progress
+
+---
+
+### Mystery Bonus Days
+
+**Purpose**: Add excitement and surprise through random double-star days.
+
+**How It Works**:
+1. Each day has ~15% chance to be a "Mystery Bonus Day"
+2. Uses deterministic randomness - all family members see the same result
+3. All chores completed on bonus days earn **2× stars**
+4. Animated banner appears on Dashboard when active
+5. Toast notifications show the multiplied reward
+
+**Achievements**:
+- 🌟 **Lucky Star** (Common) - Complete 1 chore on a Mystery Day
+- ✨ **Fortune Finder** (Rare) - Complete 5 chores on Mystery Days
+- 💫 **Mystery Master** (Epic) - Complete 15 chores on Mystery Days
 
 ---
 
