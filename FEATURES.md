@@ -359,10 +359,19 @@ Hard   → ×3
 
 ### Data Persistence
 
-**Storage**: Browser localStorage via @github/spark KV
-- All data persists across page refreshes
-- No internet connection required
-- Data survives browser restarts
+**Dual Storage System**: The app supports two storage modes:
+
+1. **Server Mode** (Docker deployment):
+   - Data stored in JSON file on disk (`/data/family-data.json`)
+   - Survives browser cache clears
+   - Persists across container restarts via Docker volume
+   - Automatic sync between browser and server
+   - Cloud icon in header shows connection status
+
+2. **Local Mode** (Development/Fallback):
+   - Browser localStorage via @github/spark KV
+   - Works offline without server
+   - Automatic fallback when server unavailable
 
 **Storage Keys**:
 | Key | Data Type |

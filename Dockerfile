@@ -1,14 +1,13 @@
 # =============================================================================
 # Family Organizer - Production Dockerfile
-# Multi-stage build optimized for Raspberry Pi and x86
+# Multi-stage build with Node.js backend for file persistence
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Stage 1: Build the application
+# Stage 1: Build the frontend application
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS frontend-builder
 
-# Add labels for better container management
 LABEL maintainer="Family Organizer"
 LABEL description="Family chore and schedule management app"
 LABEL version="1.0.0"
@@ -19,51 +18,56 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-# Using --frozen-lockfile equivalent for reproducible builds
 RUN npm ci --no-audit --no-fund
 
 # Copy source files
 COPY . .
 
-# Build the application
+# Build the frontend
 RUN npm run build
 
 # -----------------------------------------------------------------------------
-# Stage 2: Production image with Nginx
+# Stage 2: Production image with Node.js server
 # -----------------------------------------------------------------------------
-FROM nginx:1.25-alpine AS production
+FROM node:20-alpine AS production
 
-# Labels
 LABEL maintainer="Family Organizer"
 LABEL description="Family chore and schedule management app"
 
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
-# Remove default nginx config
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy server files
+COPY server/package*.json ./server/
+WORKDIR /app/server
+RUN npm ci --no-audit --no-fund --omit=dev
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy server source
+COPY server/index.js ./
+
+# Copy built frontend from builder stage
+WORKDIR /app
+COPY --from=frontend-builder /app/dist ./dist
+
+# Create data directory
+RUN mkdir -p /data && chown -R node:node /data
 
 # Create non-root user for security
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup && \
-    chown -R appuser:appgroup /usr/share/nginx/html && \
-    chown -R appuser:appgroup /var/cache/nginx && \
-    chown -R appuser:appgroup /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R appuser:appgroup /var/run/nginx.pid
+USER node
 
-# Expose port 80
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=80
+ENV DATA_DIR=/data
+
+# Expose port
 EXPOSE 80
 
-# Health check - verify nginx is serving the app
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost/api/health || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the server
+CMD ["node", "server/index.js"]

@@ -1,6 +1,6 @@
 # =============================================================================
 # Family Organizer - Docker Compose Configuration
-# Optimized for Raspberry Pi deployment
+# With persistent file storage for data durability
 # =============================================================================
 
 services:
@@ -14,11 +14,20 @@ services:
     ports:
       - "80:80"
     
+    # Persistent data volume - survives container restarts/rebuilds
+    volumes:
+      - family-data:/data
+    
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - DATA_DIR=/data
+    
     # Restart policy - keeps app running after reboots
     restart: unless-stopped
     
     # Resource limits - important for Raspberry Pi
-    # Adjust based on your Pi model (Pi 4 has 2-8GB RAM)
     deploy:
       resources:
         limits:
@@ -28,9 +37,9 @@ services:
           cpus: '0.5'
           memory: 128M
     
-    # Health check (also defined in Dockerfile)
+    # Health check
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -43,9 +52,13 @@ services:
         max-size: "10m"
         max-file: "3"
     
-    # Network
     networks:
       - family-network
+
+# Persistent volume for family data
+volumes:
+  family-data:
+    driver: local
 
 # Network configuration
 networks:

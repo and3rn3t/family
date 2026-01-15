@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV, useStorageState } from '@/hooks/use-persisted-storage'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
@@ -42,6 +42,7 @@ import { ChoreWheelDialog } from '@/components/ChoreWheelDialog'
 import { DataBackupDialog } from '@/components/DataBackupDialog'
 import { ViewModeToggle, ViewOnlyBanner } from '@/components/ViewModeToggle'
 import { StorageWarning } from '@/components/StorageWarning'
+import { StorageStatus } from '@/components/StorageStatus'
 import { Celebration } from '@/components/Celebration'
 import { AchievementUnlock } from '@/components/AchievementUnlock'
 import { BackupData } from '@/lib/data-backup'
@@ -599,6 +600,7 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-1">
+            <StorageStatus />
             <ViewModeToggle
               isViewOnly={isViewOnly || false}
               onToggle={setIsViewOnly}
