@@ -1,295 +1,252 @@
-# Family Organizer - Deployment Guide
+# 🏠 Family Organizer - Raspberry Pi Deployment Guide
 
-This guide covers deploying the Family Organizer app, with a focus on Raspberry Pi kiosk setups.
+Deploy the Family Organizer as a kiosk display on your Raspberry Pi.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [Development](#development)
-- [Docker Deployment](#docker-deployment)
-- [Raspberry Pi Setup](#raspberry-pi-setup)
-- [Kiosk Mode](#kiosk-mode)
+- [Prerequisites](#prerequisites)
+- [Build the Docker Image](#build-the-docker-image)
+- [Deploy to Raspberry Pi](#deploy-to-raspberry-pi)
+- [Kiosk Mode Setup](#kiosk-mode-setup)
+- [Management Commands](#management-commands)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Quick Start
 
-### Using Docker (Recommended)
+**From your development machine (Windows/Mac/Linux):**
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/family-organizer.git
+# Build the deployment package
+./scripts/create-pi-package.sh
+
+# Copy to Pi
+scp family-organizer-pi-1.0.0.zip pi@raspberrypi.local:~/
+```
+
+**On your Raspberry Pi:**
+
+```bash
+# Extract and install
+unzip family-organizer-pi-1.0.0.zip
+cd family-organizer-pi-package
+./install.sh
+```
+
+Open `http://<pi-ip-address>` in a browser!
+
+---
+
+## Prerequisites
+
+### On Your Development Machine
+
+- Docker Desktop with buildx support
+- Git (to clone the repo)
+
+### On Raspberry Pi
+
+- Raspberry Pi 3B+, 4, or 5
+- Raspberry Pi OS (64-bit recommended for best performance)
+- At least 1GB free disk space
+- Network connection
+
+Docker will be automatically installed by the install script if not present.
+
+---
+
+## Build the Docker Image
+
+### Option 1: Full Deployment Package (Recommended)
+
+Creates a complete package with Docker image + all deployment scripts:
+
+```bash
+# From the project root
+./scripts/create-pi-package.sh 1.0.0
+```
+
+This creates `family-organizer-pi-1.0.0.zip` containing:
+
+- `family-organizer.tar.gz` - Docker image for ARM64
+- `install.sh` - One-click installer
+- `uninstall.sh` - Clean removal script
+- `setup-kiosk.sh` - Optional kiosk mode setup
+- `docker-compose.yml` - Docker configuration
+- `README.txt` - Quick reference
+
+### Option 2: Just the Docker Image
+
+If you only need the Docker image:
+
+```bash
+./scripts/build-for-pi.sh latest
+```
+
+This creates `family-organizer-pi-latest.tar.gz`.
+
+### Option 3: Build on the Pi Directly
+
+If your Pi has enough resources (Pi 4 with 4GB+ RAM):
+
+```bash
+# Clone the repo on your Pi
+git clone https://github.com/your-repo/family-organizer.git
 cd family-organizer
 
-# Build and run
+# Build locally
+docker build -t family-organizer:latest .
+
+# Run
 docker-compose up -d
-
-# Access at http://localhost
-```
-
-### Using Make
-
-```bash
-make deploy    # Build and start
-make docker-logs  # View logs
 ```
 
 ---
 
-## Development
+## Deploy to Raspberry Pi
 
-### Prerequisites
-
-- Node.js 18+ 
-- npm 9+
-
-### Running Locally
+### Step 1: Copy Files to Pi
 
 ```bash
-# Install dependencies
-npm install
+# Using SCP (replace with your Pi's IP)
+scp family-organizer-pi-1.0.0.zip pi@192.168.1.100:~/
 
-# Start development server
-npm run dev
-
-# Access at http://localhost:5173
+# Or using rsync
+rsync -avz family-organizer-pi-1.0.0.zip pi@192.168.1.100:~/
 ```
 
-### Building for Production
+### Step 2: Install on Pi
+
+SSH into your Pi:
 
 ```bash
-npm run build
-npm run preview  # Preview the build
+ssh pi@192.168.1.100
+```
+
+Extract and install:
+
+```bash
+unzip family-organizer-pi-1.0.0.zip
+cd family-organizer-pi-package
+./install.sh
+```
+
+The install script will:
+
+1. Install Docker if not present
+2. Load the Docker image
+3. Start the container
+4. Display the URL to access the app
+
+### Step 3: Access the App
+
+Open a browser and go to:
+
+```
+http://<pi-ip-address>
+```
+
+Or from the Pi itself:
+
+```
+http://localhost
 ```
 
 ---
 
-## Docker Deployment
+## Kiosk Mode Setup
 
-### Prerequisites
+Make your Pi boot directly into the Family Organizer display.
 
-- Docker 20+
-- Docker Compose v2+
-
-### Building the Image
+### Automatic Setup
 
 ```bash
-# Build the Docker image
-docker-compose build
-
-# Or with no cache (for fresh build)
-docker-compose build --no-cache
+cd family-organizer-pi-package
+./setup-kiosk.sh
+sudo reboot
 ```
 
-### Running the Container
+### What Kiosk Mode Does
+
+- Boots directly into Chromium in fullscreen
+- Hides the cursor after 3 seconds of inactivity
+- Disables screen blanking/screensaver
+- Auto-starts on boot
+
+### Exit Kiosk Mode
+
+- Press `Alt+F4` to close Chromium
+- Or SSH in and run: `pkill chromium`
+
+### Disable Kiosk Mode
 
 ```bash
-# Start in background
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+rm ~/.config/autostart/kiosk.desktop
+sudo reboot
 ```
+
+---
+
+## Management Commands
 
 ### Container Management
 
-| Command | Description |
-|---------|-------------|
-| `docker-compose ps` | Check container status |
-| `docker-compose restart` | Restart the container |
-| `docker-compose logs -f` | Follow logs |
-| `docker-compose down` | Stop and remove container |
-| `docker-compose down -v` | Stop and remove volumes too |
-
-### Health Check
-
-The container includes a health check. Verify it's healthy:
-
 ```bash
-docker-compose ps
-# Should show "healthy" status
+# View status
+docker ps
 
-# Or check directly
-curl http://localhost/health
-```
+# View logs
+docker logs family-organizer
 
----
+# Follow logs in real-time
+docker logs -f family-organizer
 
-## Raspberry Pi Setup
+# Restart
+docker-compose restart
 
-### Recommended Hardware
+# Stop
+docker-compose down
 
-- Raspberry Pi 4 (2GB+ RAM recommended)
-- MicroSD card (16GB+ recommended)
-- Official Raspberry Pi OS (64-bit recommended)
-- Display with HDMI connection
-
-### Installing Docker on Raspberry Pi
-
-```bash
-# Update system
-sudo apt-get update
-sudo apt-get upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com | sh
-
-# Add your user to docker group (avoids needing sudo)
-sudo usermod -aG docker $USER
-
-# Install Docker Compose
-sudo apt-get install -y docker-compose
-
-# Reboot to apply changes
-sudo reboot
-```
-
-### Deploying to Raspberry Pi
-
-#### Option 1: Build on the Pi (Simplest)
-
-```bash
-# Clone or copy files to Pi
-git clone https://github.com/your-username/family-organizer.git
-cd family-organizer
-
-# Run the deploy script
-chmod +x scripts/build-and-deploy.sh
-./scripts/build-and-deploy.sh
-```
-
-#### Option 2: Build Elsewhere, Transfer to Pi
-
-On your development machine:
-
-```bash
-# Build multi-arch image
-./scripts/build-multiarch.sh
-
-# Save image to file
-docker save family-organizer:latest | gzip > family-organizer.tar.gz
-
-# Transfer to Pi
-scp family-organizer.tar.gz pi@raspberrypi.local:~
-```
-
-On the Raspberry Pi:
-
-```bash
-# Load the image
-gunzip -c family-organizer.tar.gz | docker load
-
-# Start with docker-compose
-cd family-organizer
+# Start
 docker-compose up -d
 ```
 
-### Network Access
-
-Access the app from any device on your network:
-
-1. Find Pi's IP address:
-   ```bash
-   hostname -I
-   ```
-
-2. Open in browser: `http://<pi-ip-address>`
-
-3. For easier access, use mDNS: `http://raspberrypi.local`
-
----
-
-## Kiosk Mode
-
-Set up the Pi to boot directly into the Family Organizer app.
-
-### 1. Install Required Packages
+### Update to New Version
 
 ```bash
-sudo apt-get install -y chromium-browser unclutter
+# Stop current version
+docker-compose down
+
+# Load new image
+gunzip -c family-organizer-new.tar.gz | docker load
+
+# Start
+docker-compose up -d
 ```
 
-### 2. Create Kiosk Script
+### Backup Data
+
+The app stores data in the browser's localStorage. To backup:
+
+1. Open the app in a browser
+2. Go to Management tab
+3. Click "Backup" button
+4. Save the JSON file
+
+### Resource Monitoring
 
 ```bash
-nano ~/kiosk.sh
+# Memory usage
+free -h
+
+# Docker stats
+docker stats family-organizer
+
+# Disk usage
+df -h
 ```
-
-Add this content:
-
-```bash
-#!/bin/bash
-
-# Wait for network
-sleep 10
-
-# Disable screen blanking
-xset s off
-xset -dpms
-xset s noblank
-
-# Hide mouse cursor
-unclutter -idle 0.5 -root &
-
-# Start Chromium in kiosk mode
-chromium-browser \
-    --noerrdialogs \
-    --disable-infobars \
-    --disable-session-crashed-bubble \
-    --disable-restore-session-state \
-    --kiosk \
-    --incognito \
-    --check-for-update-interval=31536000 \
-    http://localhost
-```
-
-Make it executable:
-
-```bash
-chmod +x ~/kiosk.sh
-```
-
-### 3. Auto-Start on Boot
-
-Create autostart directory:
-
-```bash
-mkdir -p ~/.config/autostart
-```
-
-Create autostart entry:
-
-```bash
-nano ~/.config/autostart/kiosk.desktop
-```
-
-Add:
-
-```ini
-[Desktop Entry]
-Type=Application
-Name=Family Organizer Kiosk
-Exec=/home/pi/kiosk.sh
-X-GNOME-Autostart-enabled=true
-```
-
-### 4. Ensure Docker Starts on Boot
-
-```bash
-sudo systemctl enable docker
-```
-
-### 5. Reboot
-
-```bash
-sudo reboot
-```
-
-The Pi should boot directly into the Family Organizer app in full-screen kiosk mode.
 
 ---
 
@@ -299,100 +256,113 @@ The Pi should boot directly into the Family Organizer app in full-screen kiosk m
 
 ```bash
 # Check logs
-docker-compose logs
+docker logs family-organizer
 
 # Check if port 80 is in use
-sudo lsof -i :80
+sudo netstat -tlnp | grep :80
 
-# Try different port
+# Use different port
 # Edit docker-compose.yml: change "80:80" to "8080:80"
 ```
 
-### Can't Access from Other Devices
+### Out of Memory
+
+The Pi may run low on memory. Solutions:
 
 ```bash
-# Check firewall
-sudo ufw status
+# Check memory
+free -h
 
-# Allow port 80
-sudo ufw allow 80
+# Reduce container memory limit in docker-compose.yml
+# Change memory: 256M to memory: 128M
 
-# Verify Pi's IP
-hostname -I
+# Add swap space
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile  # Set CONF_SWAPSIZE=1024
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
 ```
 
-### Kiosk Mode Issues
+### Display Issues in Kiosk Mode
 
 ```bash
 # Check if Chromium is running
 ps aux | grep chromium
 
-# Test script manually
+# Manually start kiosk
 ~/kiosk.sh
 
 # Check X server logs
 cat ~/.xsession-errors
 ```
 
-### Build Fails on Pi
-
-The build can be slow or fail on Pi due to limited RAM:
+### Network Issues
 
 ```bash
-# Increase swap space temporarily
-sudo dphys-swapfile swapoff
-sudo nano /etc/dphys-swapfile
-# Change CONF_SWAPSIZE to 2048
-sudo dphys-swapfile setup
-sudo dphys-swapfile swapon
+# Check Pi's IP
+hostname -I
 
-# Then rebuild
-docker-compose build
+# Test container
+curl http://localhost
+
+# Check Docker network
+docker network ls
 ```
 
-### Container Uses Too Much Memory
+### Slow Performance
 
-Adjust limits in `docker-compose.yml`:
+For Pi 3B+ or older:
 
-```yaml
-deploy:
-  resources:
-    limits:
-      memory: 256M  # Reduce if needed
-```
+1. Use a high-quality SD card (Class 10 or better)
+2. Reduce animations in the app (Settings)
+3. Close other running applications
+4. Consider overclocking (at your own risk)
 
 ---
 
-## Useful Commands Reference
+## Hardware Recommendations
+
+### Minimum
+
+- Raspberry Pi 3B+
+- 16GB SD card
+- 2.5A power supply
+
+### Recommended
+
+- Raspberry Pi 4 (2GB+ RAM)
+- 32GB SD card (Class 10)
+- 3A USB-C power supply
+- Official 7" touchscreen or HDMI monitor
+
+### Optimal Kiosk Setup
+
+- Raspberry Pi 4 (4GB RAM)
+- 64GB SD card
+- Official touchscreen with case
+- Hardwired ethernet for reliability
+
+---
+
+## Security Notes
+
+- The app runs on HTTP (port 80) by default
+- Data is stored locally in the browser
+- No data leaves your local network
+- Consider setting up a firewall if exposed to untrusted networks
 
 ```bash
-# Docker
-docker-compose up -d          # Start
-docker-compose down           # Stop
-docker-compose logs -f        # View logs
-docker-compose restart        # Restart
-docker-compose ps             # Status
-
-# System (on Pi)
-hostname -I                   # Get IP address
-df -h                         # Check disk space
-free -h                       # Check memory
-htop                          # System monitor
-
-# Kiosk
-pkill chromium                # Kill kiosk browser
-~/kiosk.sh                    # Restart kiosk manually
+# Basic firewall setup
+sudo apt install ufw
+sudo ufw allow ssh
+sudo ufw allow 80/tcp
+sudo ufw enable
 ```
 
 ---
 
 ## Support
 
-If you encounter issues:
-
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review container logs: `docker-compose logs`
-3. Open an issue on GitHub with:
-   - Pi model and OS version
-   - Docker version (`docker --version`)
-   - Error messages from logs
+- **Issues**: Report on GitHub
+- **Logs**: Always include `docker logs family-organizer` output
+- **System Info**: Include `uname -a` and `free -h` output

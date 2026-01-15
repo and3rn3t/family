@@ -3,7 +3,7 @@
 # Convenience commands for development and deployment
 # =============================================================================
 
-.PHONY: help dev build preview lint format docker-build docker-up docker-down docker-logs docker-restart clean
+.PHONY: help dev build preview lint format docker-build docker-up docker-down docker-logs docker-restart clean pi-build pi-package
 
 # Default target
 help:
@@ -24,6 +24,10 @@ help:
 	@echo "  make docker-logs    - View container logs"
 	@echo "  make docker-restart - Restart container"
 	@echo "  make docker-clean   - Remove images and containers"
+	@echo ""
+	@echo "Raspberry Pi:"
+	@echo "  make pi-build       - Build Docker image for Pi (ARM64)"
+	@echo "  make pi-package     - Create full deployment package for Pi"
 	@echo ""
 	@echo "Other:"
 	@echo "  make clean      - Remove build artifacts"
@@ -68,7 +72,18 @@ docker-clean:
 deploy: docker-build docker-up
 	@echo "Deployment complete!"
 
+# Raspberry Pi deployment
+pi-build:
+	@echo "Building Docker image for Raspberry Pi..."
+	./scripts/build-for-pi.sh latest
+
+pi-package:
+	@echo "Creating deployment package for Raspberry Pi..."
+	./scripts/create-pi-package.sh 1.0.0
+
 # Clean build artifacts
 clean:
 	rm -rf dist/
 	rm -rf node_modules/.cache/
+	rm -f family-organizer-pi-*.tar.gz
+	rm -f family-organizer-pi-*.zip
