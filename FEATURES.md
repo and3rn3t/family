@@ -368,6 +368,25 @@ Hard   → ×3
 | Key | Data Type |
 |-----|-----------|
 | `family-members` | FamilyMember[] |
+
+### Data Backup & Restore
+
+**Purpose**: Protect your family data and transfer between devices.
+
+**Export Features**:
+- Download complete backup as JSON file
+- Includes all members, chores, events, competitions, and settings
+- Timestamped filename for easy identification
+- Human-readable format
+
+**Import Features**:
+- Restore from any valid backup file
+- Schema version validation
+- Preview data before importing
+- Warning before replacing existing data
+- Handles older backup formats gracefully
+
+**Access**: Management tab → "Backup" button
 | `chores` | Chore[] |
 | `events` | Event[] |
 | `monthly-competitions` | MonthlyCompetition[] |
