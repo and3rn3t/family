@@ -1,5 +1,8 @@
 {
     "name": "spark-template",
+    "engines": { "node": ">=24.13.0" },
+    "repository": { "type": "git", "url": "https://github.com/and3rn3t/family.git" },
+    "license": "MIT",
     "description": "Family Organizer — chore/schedule kiosk app for Raspberry Pi 4B.",
     "private": true,
     "version": "0.0.0",
