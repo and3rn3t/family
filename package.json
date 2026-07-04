@@ -1,5 +1,6 @@
 {
     "name": "spark-template",
+    "description": "Family Organizer — chore/schedule kiosk app for Raspberry Pi 4B.",
     "private": true,
     "version": "0.0.0",
     "type": "module",
