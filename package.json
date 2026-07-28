@@ -1,7 +1,12 @@
 {
     "name": "spark-template",
-    "engines": { "node": ">=24.13.0" },
-    "repository": { "type": "git", "url": "https://github.com/and3rn3t/family.git" },
+    "engines": {
+        "node": ">=24.13.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/and3rn3t/family.git"
+    },
     "license": "MIT",
     "description": "Family Organizer — chore/schedule kiosk app for Raspberry Pi 4B.",
     "private": true,
@@ -76,7 +81,7 @@
         "recharts": "^2.15.1",
         "sonner": "^2.0.1",
         "tailwind-merge": "^3.0.2",
-        "three": "^0.175.0",
+        "three": "^0.185.1",
         "tw-animate-css": "^1.2.4",
         "uuid": "^14.0.0",
         "vaul": "^1.1.2",
