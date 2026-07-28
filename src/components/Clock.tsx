@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 interface ClockProps {
   showDate?: boolean

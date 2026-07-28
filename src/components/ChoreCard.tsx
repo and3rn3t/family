@@ -6,7 +6,7 @@ import { MemberAvatar } from './MemberAvatar'
 import { Chore, FamilyMember } from '@/lib/types'
 import { getFrequencyLabel, isChoreOverdue, isChoreComplete, getStarsForChore, getDifficultyLabel, getDifficultyEmoji } from '@/lib/helpers'
 import { Trash, PencilSimple, Star } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 interface ChoreCardProps {

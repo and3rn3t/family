@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MemberAvatar } from './MemberAvatar'
 import { FamilyMember } from '@/lib/types'
 import { Star, Trophy, Medal, Lightning, Fire } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { getCurrentMonthKey, getCurrentWeekKey, getMemberMonthlyStars, getMemberWeeklyStars } from '@/lib/helpers'
 
 interface LeaderboardProps {

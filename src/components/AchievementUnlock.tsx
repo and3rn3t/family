@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { Card } from '@/components/ui/card'
 import { Achievement } from '@/lib/types'
 import { getRarityColor } from '@/lib/achievements'
