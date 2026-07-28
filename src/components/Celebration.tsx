@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { Check } from '@phosphor-icons/react'
 
 interface CelebrationProps {

@@ -1,6 +1,6 @@
 import { Moon, Sun } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 interface ThemeToggleProps {
   isDark: boolean

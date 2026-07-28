@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import { motion, useAnimation } from 'motion/react'
 import { FamilyMember } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { SpinnerGap, Confetti } from '@phosphor-icons/react'
